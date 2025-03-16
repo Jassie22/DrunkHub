@@ -41,21 +41,6 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
     });
   }
 
-  void _togglePackageSelection(GamePackage package) {
-    if (package.isPremium && !isPremiumUser) {
-      _showPurchaseOptions();
-      return;
-    }
-
-    setState(() {
-      if (selectedPackages.contains(package)) {
-        selectedPackages.remove(package);
-      } else {
-        selectedPackages.add(package);
-      }
-    });
-  }
-
   void _showPremiumDialog() {
     showDialog(
       context: context,
@@ -175,6 +160,28 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
                 ),
               ),
               const SizedBox(height: 16),
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  side: const BorderSide(color: Color(0xFF1A237E)),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _showAccessCodeDialog();
+                },
+                child: const Text(
+                  'Enter Access Code',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1A237E),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               if (kDebugMode) // Only show in debug mode
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -186,13 +193,27 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
                   ),
                   onPressed: () async {
                     Navigator.of(context).pop();
+                    
+                    // Debug print before toggling
+                    debugPrint('Before toggle: isPremium = ${_purchaseService.isPremium}');
+                    
+                    // Toggle premium status
                     await _purchaseService.togglePremiumForTesting();
+                    
+                    // Debug print after toggling
+                    debugPrint('After toggle: isPremium = ${_purchaseService.isPremium}');
+                    
+                    // Force update the UI state
+                    setState(() {
+                      isPremiumUser = _purchaseService.isPremium;
+                    });
+                    
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(isPremiumUser 
-                          ? 'Premium status removed for testing' 
-                          : 'Premium status granted for testing'),
-                        backgroundColor: isPremiumUser ? Colors.red : Colors.green,
+                          ? 'Premium status granted for testing' 
+                          : 'Premium status removed for testing'),
+                        backgroundColor: isPremiumUser ? Colors.green : Colors.red,
                       ),
                     );
                   },
@@ -258,6 +279,131 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
     );
   }
 
+  void _showAccessCodeDialog() {
+    final TextEditingController codeController = TextEditingController();
+    bool isSubmitting = false;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Row(
+                children: [
+                  Icon(Icons.vpn_key, color: Colors.amber, size: 24),
+                  SizedBox(width: 10),
+                  Text('Enter Access Code',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: codeController,
+                    decoration: const InputDecoration(
+                      hintText: 'Enter your access code',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    obscureText: true,
+                    maxLength: 6,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      letterSpacing: 8,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1A237E),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: isSubmitting 
+                        ? null 
+                        : () async {
+                          if (codeController.text.trim() == '060125') {
+                            setState(() {
+                              isSubmitting = true;
+                            });
+                            
+                            // Debug print before toggling
+                            debugPrint('Before toggle: isPremium = ${_purchaseService.isPremium}');
+                            
+                            // Show success and grant premium
+                            await _purchaseService.togglePremiumForTesting();
+                            
+                            // Debug print after toggling
+                            debugPrint('After toggle: isPremium = ${_purchaseService.isPremium}');
+                            
+                            // Force update the UI state
+                            this.setState(() {
+                              isPremiumUser = _purchaseService.isPremium;
+                            });
+                            
+                            if (mounted) {
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Premium access ${isPremiumUser ? "granted" : "removed"}!'),
+                                  backgroundColor: isPremiumUser ? Colors.green : Colors.red,
+                                ),
+                              );
+                            }
+                          } else {
+                            // Show error for invalid code
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Invalid access code'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                      child: isSubmitting
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Submit',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+              ],
+            );
+          }
+        );
+      },
+    );
+  }
+
   Widget _buildPackageCard(GamePackage package) {
     final bool isSelected = selectedPackages.contains(package);
     final bool isLocked = package.isPremium && !isPremiumUser;
@@ -265,8 +411,19 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
 
     return GestureDetector(
       onTap: () {
-        // Remove the adult content warning and directly toggle selection
-        _togglePackageSelection(package);
+        // Only allow selection if the package is not locked
+        if (!isLocked) {
+          setState(() {
+            if (selectedPackages.contains(package)) {
+              selectedPackages.remove(package);
+            } else {
+              selectedPackages.add(package);
+            }
+          });
+        } else {
+          // Show purchase options if the package is locked
+          _showPurchaseOptions();
+        }
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -343,14 +500,34 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(15),
                   ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.lock,
-                      color: Colors.grey,
-                      size: 24,
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.lock,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Premium',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(
+                                blurRadius: 4,
+                                color: Colors.black.withOpacity(0.5),
+                                offset: const Offset(1, 1),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -492,6 +669,27 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
             ],
           ),
         ),
+      ),
+      // Add a floating action button for quick premium toggle
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          // Toggle premium status
+          final newStatus = !isPremiumUser;
+          await _purchaseService.setPremiumStatus(newStatus);
+          setState(() {
+            isPremiumUser = newStatus;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Premium access ${newStatus ? "FORCED ON" : "FORCED OFF"}'),
+              backgroundColor: newStatus ? Colors.green : Colors.red,
+              duration: const Duration(seconds: 1),
+            ),
+          );
+        },
+        backgroundColor: isPremiumUser ? Colors.red : Colors.green,
+        child: Icon(isPremiumUser ? Icons.lock_open : Icons.vpn_key),
+        tooltip: isPremiumUser ? 'Disable Premium' : 'Enable Premium',
       ),
     );
   }

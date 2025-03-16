@@ -27,12 +27,14 @@ class PurchaseService extends ChangeNotifier {
   Future<void> initialize() async {
     // Load premium status from shared preferences
     await _loadPremiumStatus();
+    debugPrint('PurchaseService initialized: isPremium = $_isPremium');
   }
   
   Future<void> _loadPremiumStatus() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       _isPremium = prefs.getBool('isPremium') ?? false;
+      debugPrint('Loaded premium status: $_isPremium');
       notifyListeners();
     } catch (e) {
       debugPrint('Error loading premium status: $e');
@@ -43,6 +45,7 @@ class PurchaseService extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isPremium', status);
+      debugPrint('Saved premium status: $status');
       _isPremium = status;
       notifyListeners();
     } catch (e) {
@@ -127,6 +130,15 @@ class PurchaseService extends ChangeNotifier {
   
   // For testing purposes only - DO NOT USE IN PRODUCTION
   Future<void> togglePremiumForTesting() async {
-    await _savePremiumStatus(!_isPremium);
+    final newStatus = !_isPremium;
+    debugPrint('Toggling premium status from $_isPremium to $newStatus');
+    await _savePremiumStatus(newStatus);
+    debugPrint('After toggle: isPremium = $_isPremium');
+  }
+  
+  // Force set premium status (for testing)
+  Future<void> setPremiumStatus(bool status) async {
+    debugPrint('Forcing premium status to $status');
+    await _savePremiumStatus(status);
   }
 } 

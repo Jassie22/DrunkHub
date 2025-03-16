@@ -16,20 +16,35 @@ class GamePrompt {
     if (isGroupPrompt) return text;
     
     String formattedText = text;
-    if (requiresPlayer && targetPlayer != null) {
-      // Replace [player] with the target player's name (no bold)
-      formattedText = formattedText.replaceAll('[player]', targetPlayer);
+    
+    // Always replace [player] with the target player's name, regardless of requiresPlayer flag
+    if (formattedText.contains('[player]')) {
+      if (targetPlayer != null) {
+        formattedText = formattedText.replaceAll('[player]', targetPlayer);
+      } else if (players.isNotEmpty) {
+        // If no target player is provided but we have players, use a random one
+        formattedText = formattedText.replaceAll('[player]', players[Random().nextInt(players.length)]);
+      }
+    }
+    
+    // Handle additional random players if needed, ensuring they're different from targetPlayer
+    while (formattedText.contains('[random]')) {
+      if (players.isEmpty) break; // Safety check
       
-      // Handle additional random players if needed, ensuring they're different from targetPlayer
-      while (formattedText.contains('[random]')) {
-        String randomPlayer;
+      String randomPlayer;
+      if (targetPlayer != null && players.length > 1) {
+        // Ensure random player is different from target player if possible
         do {
           randomPlayer = players[Random().nextInt(players.length)];
         } while (randomPlayer == targetPlayer && players.length > 1);
-        
-        formattedText = formattedText.replaceFirst('[random]', randomPlayer);
+      } else {
+        // Just pick a random player
+        randomPlayer = players[Random().nextInt(players.length)];
       }
+      
+      formattedText = formattedText.replaceFirst('[random]', randomPlayer);
     }
+    
     return formattedText;
   }
 
