@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import '../models/game_prompt.dart';
 import '../models/game_package.dart';
+import 'game_end_screen.dart';
 
 class GameScreen extends StatefulWidget {
   final List<String> players;
@@ -227,6 +228,31 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   void dispose() {
     _cardController.dispose();
     super.dispose();
+  }
+
+  void _endGame() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => GameEndScreen(
+        players: widget.players,
+        onPlayAgain: () {
+          Navigator.pop(context); // Close dialog
+          setState(() {
+            _currentPromptIndex = -1;
+            _showTutorial = true;
+          });
+        },
+        onNewGame: () {
+          Navigator.pop(context); // Close dialog
+          Navigator.pop(context); // Return to package selection
+        },
+        onHome: () {
+          Navigator.pop(context); // Close dialog
+          Navigator.pop(context); // Return to home
+        },
+      ),
+    );
   }
 
   @override
