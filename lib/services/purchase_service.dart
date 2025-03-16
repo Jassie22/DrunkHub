@@ -55,65 +55,78 @@ class PurchaseService extends ChangeNotifier {
     notifyListeners();
   }
   
-  // Simulate starting a free trial
+  // Purchase methods that simulate a payment flow but don't automatically grant access
+  
+  // Start free trial
   Future<void> startFreeTrial() async {
     _setLoading(true);
     
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 2));
-      await _savePremiumStatus(true);
+      // Simulate a short delay
+      await Future.delayed(const Duration(milliseconds: 500));
+      // In a real app, this would connect to the payment system
+      // For now, we'll throw an exception to indicate payment is required
       _setLoading(false);
+      throw Exception('This is a demo app. In a real app, this would connect to the payment system.');
     } catch (e) {
       _setLoading(false);
       rethrow;
     }
   }
   
-  // Simulate subscribing weekly
+  // Subscribe weekly
   Future<void> subscribeWeekly() async {
     _setLoading(true);
     
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 2));
-      await _savePremiumStatus(true);
+      // Simulate a short delay
+      await Future.delayed(const Duration(milliseconds: 500));
+      // In a real app, this would connect to the payment system
+      // For now, we'll throw an exception to indicate payment is required
       _setLoading(false);
+      throw Exception('This is a demo app. In a real app, this would connect to the payment system.');
     } catch (e) {
       _setLoading(false);
       rethrow;
     }
   }
   
-  // Simulate purchasing lifetime access
+  // Purchase lifetime access
   Future<void> purchaseLifetime() async {
     _setLoading(true);
     
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 2));
-      await _savePremiumStatus(true);
+      // Simulate a short delay
+      await Future.delayed(const Duration(milliseconds: 500));
+      // In a real app, this would connect to the payment system
+      // For now, we'll throw an exception to indicate payment is required
       _setLoading(false);
+      throw Exception('This is a demo app. In a real app, this would connect to the payment system.');
     } catch (e) {
       _setLoading(false);
       rethrow;
     }
   }
   
-  // Simulate restoring purchases
+  // Restore purchases
   Future<void> restorePurchases() async {
     _setLoading(true);
     
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(seconds: 2));
-      // For testing, we'll just set premium to true
-      // In a real app, this would check with the store
-      await _savePremiumStatus(true);
+      // Simulate a short delay
+      await Future.delayed(const Duration(milliseconds: 500));
+      // In a real app, this would connect to the payment system
+      // For now, we'll throw an exception to indicate payment is required
       _setLoading(false);
+      throw Exception('This is a demo app. In a real app, this would connect to the payment system.');
     } catch (e) {
       _setLoading(false);
       rethrow;
     }
+  }
+  
+  // For testing purposes only - DO NOT USE IN PRODUCTION
+  Future<void> togglePremiumForTesting() async {
+    await _savePremiumStatus(!_isPremium);
   }
 } 

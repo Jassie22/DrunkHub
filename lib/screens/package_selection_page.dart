@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../models/game_package.dart';
 import '../services/purchase_service.dart';
 import 'game_screen.dart';
@@ -142,49 +143,16 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 16),
-              _buildPurchaseOption(
-                title: 'Free Trial',
-                description: '3 days free, then £2.99/week',
-                icon: Icons.access_time,
-                onTap: () async {
-                  Navigator.of(context).pop();
-                  // Show loading indicator
-                  _showLoadingDialog();
-                  try {
-                    await _purchaseService.startFreeTrial();
-                    if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                  } catch (e) {
-                    if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                    _showErrorDialog('Failed to start free trial');
-                  }
-                },
-              ),
-              const SizedBox(height: 12),
-              _buildPurchaseOption(
-                title: 'Weekly Subscription',
-                description: '£2.99 per week',
-                icon: Icons.calendar_today,
-                onTap: () async {
-                  Navigator.of(context).pop();
-                  // Show loading indicator
-                  _showLoadingDialog();
-                  try {
-                    await _purchaseService.subscribeWeekly();
-                    if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                  } catch (e) {
-                    if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                    _showErrorDialog('Failed to subscribe');
-                  }
-                },
-              ),
-              const SizedBox(height: 12),
-              _buildPurchaseOption(
-                title: 'Lifetime Access',
-                description: '£5.99 one-time payment',
-                icon: Icons.verified,
-                isHighlighted: true,
-                onTap: () async {
+              const SizedBox(height: 20),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1A237E),
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                onPressed: () async {
                   Navigator.of(context).pop();
                   // Show loading indicator
                   _showLoadingDialog();
@@ -193,43 +161,57 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
                     if (mounted) Navigator.of(context).pop(); // Dismiss loading
                   } catch (e) {
                     if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                    _showErrorDialog('Failed to purchase lifetime access');
+                    _showErrorDialog('Payment Required', 
+                      'This is a demo app. In a real app, this would connect to the payment system.');
                   }
                 },
+                child: const Text(
+                  'Unlock Premium',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Prices shown in your local currency. Cancel anytime.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
+              if (kDebugMode) // Only show in debug mode
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    await _purchaseService.togglePremiumForTesting();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(isPremiumUser 
+                          ? 'Premium status removed for testing' 
+                          : 'Premium status granted for testing'),
+                        backgroundColor: isPremiumUser ? Colors.red : Colors.green,
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'Toggle Premium (Testing)',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
-                textAlign: TextAlign.center,
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Maybe Later'),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Maybe Later'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-                // Show loading indicator
-                _showLoadingDialog();
-                try {
-                  await _purchaseService.restorePurchases();
-                  if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                } catch (e) {
-                  if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                  _showErrorDialog('Failed to restore purchases');
-                }
-              },
-              child: const Text('Restore Purchases'),
-            ),
-          ],
-          actionsPadding: const EdgeInsets.only(bottom: 16, right: 16),
           contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -258,12 +240,12 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
     );
   }
 
-  void _showErrorDialog(String message) {
+  void _showErrorDialog(String title, String message) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Error'),
+          title: Text(title),
           content: Text(message),
           actions: [
             TextButton(
@@ -276,124 +258,6 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
     );
   }
 
-  void _showAdultContentWarning(GamePackage package) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.warning_amber_rounded, color: Colors.red[700], size: 30),
-              const SizedBox(width: 10),
-              const Text('Adult Content Warning',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('${package.name} contains mature content intended for adults 18+.'),
-              const SizedBox(height: 10),
-              const Text('This package includes:'),
-              const SizedBox(height: 5),
-              const Text('• Sexually suggestive content'),
-              const Text('• Adult themes and language'),
-              const Text('• Intimate challenges'),
-              const SizedBox(height: 10),
-              const Text('Please ensure all players are comfortable with this content before proceeding.'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1A237E),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _togglePackageSelection(package);
-              },
-              child: const Text('I Understand'),
-            ),
-          ],
-          actionsPadding: const EdgeInsets.only(bottom: 16, right: 16),
-          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildPurchaseOption({
-    required String title,
-    required String description,
-    required IconData icon,
-    required VoidCallback onTap,
-    bool isHighlighted = false,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        decoration: BoxDecoration(
-          color: isHighlighted ? const Color(0xFF1A237E).withOpacity(0.1) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isHighlighted ? const Color(0xFF1A237E) : Colors.grey.shade300,
-            width: isHighlighted ? 2 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: isHighlighted ? const Color(0xFF1A237E) : Colors.grey.shade700,
-              size: 28,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: isHighlighted ? const Color(0xFF1A237E) : Colors.black,
-                    ),
-                  ),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.arrow_forward_ios,
-              color: isHighlighted ? const Color(0xFF1A237E) : Colors.grey.shade400,
-              size: 16,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildPackageCard(GamePackage package) {
     final bool isSelected = selectedPackages.contains(package);
     final bool isLocked = package.isPremium && !isPremiumUser;
@@ -401,11 +265,8 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
 
     return GestureDetector(
       onTap: () {
-        if (isAdultContent && !isSelected) {
-          _showAdultContentWarning(package);
-        } else {
-          _togglePackageSelection(package);
-        }
+        // Remove the adult content warning and directly toggle selection
+        _togglePackageSelection(package);
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -456,14 +317,6 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
                                 color: isLocked ? Colors.grey : Colors.amber,
                               ),
                             ],
-                            if (isAdultContent) ...[
-                              const SizedBox(width: 8),
-                              Icon(
-                                Icons.explicit,
-                                size: 18,
-                                color: Colors.red,
-                              ),
-                            ],
                           ],
                         ),
                         const SizedBox(height: 4),
@@ -474,18 +327,6 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
                             color: Colors.grey[600],
                           ),
                         ),
-                        if (isAdultContent)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                              '18+ Adult Content',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.red[700],
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
                       ],
                     ),
                   ),
