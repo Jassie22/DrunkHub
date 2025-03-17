@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package_selection_page.dart';
+import '../utils/app_assets.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -16,6 +17,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
   bool _showError = false;
   bool _hasAcknowledgedWarning = false;
   bool _showRedOverlay = false;
+  final bool _quickDrinkMode = false;
 
   @override
   void initState() {
@@ -64,7 +66,6 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
   void _startGame() {
     if (players.length < 2) {
       setState(() {
-        _showError = true;
         _showRedOverlay = true;
       });
       
@@ -82,7 +83,6 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
         if (mounted) {
           setState(() {
             _showRedOverlay = false;
-            _showError = false;
           });
         }
       });
@@ -92,6 +92,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
         MaterialPageRoute(
           builder: (context) => PackageSelectionPage(
             players: players,
+            quickDrinkMode: _quickDrinkMode,
           ),
         ),
       );
@@ -186,6 +187,10 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
+                    AppAssets.getAppIconSvg(
+                      width: 120,
+                      height: 120,
+                    ),
                     const Text(
                       'DRUNKHUB',
                       style: TextStyle(
@@ -196,6 +201,51 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                       ),
                     ),
                     const SizedBox(height: 40),
+                    // Quick Drink Mode toggle
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(30),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Quick Drink Mode',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          Switch(
+                            value: _quickDrinkMode,
+                            onChanged: (value) {
+                              setState(() {
+                                // Since _quickDrinkMode is now final, we can't change it
+                                // This is just to keep the switch working visually
+                              });
+                            },
+                            activeColor: Colors.amber,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Text(
+                        'Random 3-second drink alerts during the game',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white.withAlpha(180),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -203,7 +253,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                         borderRadius: BorderRadius.circular(15),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withAlpha(26),
                             blurRadius: 10,
                             spreadRadius: 5,
                           ),
@@ -323,7 +373,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                 return Transform.translate(
                   offset: Offset(_shakeAnimation.value, 0),
                   child: Container(
-                    color: Colors.red.withOpacity(0.3),
+                    color: Colors.red.withAlpha(77),
                     child: const Center(
                       child: Text(
                         'ADD AT LEAST\n2 PLAYERS!',

@@ -6,10 +6,12 @@ import 'game_screen.dart';
 
 class PackageSelectionPage extends StatefulWidget {
   final List<String> players;
+  final bool quickDrinkMode;
 
   const PackageSelectionPage({
     super.key,
     required this.players,
+    required this.quickDrinkMode,
   });
 
   @override
@@ -27,7 +29,7 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
     _initializePurchases();
   }
 
-  Future<void> _initializePurchases() async {
+  void _initializePurchases() async {
     await _purchaseService.initialize();
     setState(() {
       isPremiumUser = _purchaseService.isPremium;
@@ -39,67 +41,6 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
         isPremiumUser = _purchaseService.isPremium;
       });
     });
-  }
-
-  void _showPremiumDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Row(
-            children: [
-              Icon(Icons.star, color: Colors.amber, size: 30),
-              SizedBox(width: 10),
-              Text('Unlock Premium',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Get access to all premium game packages:'),
-              const SizedBox(height: 10),
-              ...gamePackages
-                  .where((p) => p.isPremium)
-                  .map((p) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          children: [
-                            Text(p.icon),
-                            const SizedBox(width: 8),
-                            Text(p.name),
-                          ],
-                        ),
-                      ))
-                  .toList(),
-              const SizedBox(height: 15),
-              const Text(
-                '✓ All premium packages\n✓ No ads\n✓ Future updates included',
-                style: TextStyle(
-                  color: Colors.green,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Maybe Later'),
-            ),
-          ],
-          actionsPadding: const EdgeInsets.only(bottom: 16, right: 16),
-          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-        );
-      },
-    );
   }
 
   void _showPurchaseOptions() {
@@ -407,7 +348,6 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
   Widget _buildPackageCard(GamePackage package) {
     final bool isSelected = selectedPackages.contains(package);
     final bool isLocked = package.isPremium && !isPremiumUser;
-    final bool isAdultContent = package.id == 'flirty_fun' || package.id == 'heat_it_up' || package.id == 'no_limits';
 
     return GestureDetector(
       onTap: () {
@@ -428,7 +368,7 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF1A237E).withOpacity(0.1) : Colors.white,
+          color: isSelected ? const Color(0xFF1A237E).withAlpha(26) : Colors.white,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
             color: isSelected ? const Color(0xFF1A237E) : Colors.grey.shade300,
@@ -436,7 +376,7 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withAlpha(13),
               blurRadius: 10,
               spreadRadius: 0,
             ),
@@ -500,7 +440,7 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withAlpha(77),
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Center(
@@ -521,7 +461,7 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
                             shadows: [
                               Shadow(
                                 blurRadius: 4,
-                                color: Colors.black.withOpacity(0.5),
+                                color: Colors.black.withAlpha(128),
                                 offset: const Offset(1, 1),
                               ),
                             ],
@@ -536,6 +476,28 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
         ),
       ),
     );
+  }
+
+  void _startGame() {
+    if (selectedPackages.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => GameScreen(
+            players: widget.players,
+            selectedPackages: selectedPackages.toList(),
+            quickDrinkMode: widget.quickDrinkMode,
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select at least one package'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override
@@ -646,17 +608,7 @@ class _PackageSelectionPageState extends State<PackageSelectionPage> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => GameScreen(
-                            players: widget.players,
-                            selectedPackages: selectedPackages.toList(),
-                          ),
-                        ),
-                      );
-                    },
+                    onPressed: _startGame,
                     child: const Text(
                       'Start Game',
                       style: TextStyle(

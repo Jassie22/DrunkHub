@@ -17,32 +17,29 @@ class GamePrompt {
     
     String formattedText = text;
     
-    // Always replace [player] with the target player's name, regardless of requiresPlayer flag
-    if (formattedText.contains('[player]')) {
+    // Replace "Current player" with the target player's name
+    if (formattedText.contains('Current player')) {
       if (targetPlayer != null) {
-        formattedText = formattedText.replaceAll('[player]', targetPlayer);
+        formattedText = formattedText.replaceAll('Current player', targetPlayer);
       } else if (players.isNotEmpty) {
-        // If no target player is provided but we have players, use a random one
-        formattedText = formattedText.replaceAll('[player]', players[Random().nextInt(players.length)]);
+        formattedText = formattedText.replaceAll('Current player', players[Random().nextInt(players.length)]);
       }
     }
     
-    // Handle additional random players if needed, ensuring they're different from targetPlayer
-    while (formattedText.contains('[random]')) {
-      if (players.isEmpty) break; // Safety check
+    // Replace "another player" with a random player's name, ensuring they're different from targetPlayer
+    while (formattedText.contains('another player')) {
+      if (players.isEmpty) break;
       
       String randomPlayer;
       if (targetPlayer != null && players.length > 1) {
-        // Ensure random player is different from target player if possible
         do {
           randomPlayer = players[Random().nextInt(players.length)];
         } while (randomPlayer == targetPlayer && players.length > 1);
       } else {
-        // Just pick a random player
         randomPlayer = players[Random().nextInt(players.length)];
       }
       
-      formattedText = formattedText.replaceFirst('[random]', randomPlayer);
+      formattedText = formattedText.replaceFirst('another player', randomPlayer);
     }
     
     return formattedText;
@@ -53,7 +50,7 @@ class GamePrompt {
     
     for (var package in packages) {
       for (var promptText in package.samplePrompts) {
-        bool requiresPlayer = promptText.contains('[player]') || promptText.contains('[random]');
+        bool requiresPlayer = promptText.contains('Current player') || promptText.contains('another player');
         bool isGroupPrompt = promptText.toLowerCase().contains('everyone') || 
                            promptText.toLowerCase().contains('all players');
         

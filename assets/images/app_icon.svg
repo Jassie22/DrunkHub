@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simple toast glasses icon -->
+  <g transform="translate(50, 50) scale(0.8)">
+    <!-- Martini Glass -->
+    <path d="M150 100 L50 300 L250 300 Z" fill="white" stroke="white" stroke-width="10"/>
+    <rect x="140" y="300" width="20" height="100" fill="white"/>
+    <ellipse cx="150" cy="400" rx="40" ry="10" fill="white"/>
+    
+    <!-- Tumbler Glass -->
+    <path d="M350 150 L300 300 L400 300 Z" fill="white" stroke="white" stroke-width="10" transform="rotate(180 350 225)"/>
+    <rect x="300" y="150" width="100" height="150" fill="white" stroke="white" stroke-width="10"/>
+    
+    <!-- Sparkles -->
+    <circle cx="200" cy="150" r="10" fill="gold"/>
+    <circle cx="220" cy="130" r="8" fill="gold"/>
+    <circle cx="240" cy="160" r="6" fill="gold"/>
+    <circle cx="190" cy="180" r="7" fill="gold"/>
+    <circle cx="260" cy="140" r="9" fill="gold"/>
+  </g>
+</svg> 
