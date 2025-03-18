@@ -163,10 +163,16 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
       // Start pulse animation and repeat
       _pulseController.repeat();
 
-      // Initialize confetti controllers with shorter duration
-      _confettiController = ConfettiController(duration: const Duration(seconds: 2));
-      _confettiControllerLeft = ConfettiController(duration: const Duration(seconds: 2));
-      _confettiControllerRight = ConfettiController(duration: const Duration(seconds: 2));
+      // Initialize confetti controllers with shorter duration and try-catch for safety
+      try {
+        _confettiController = ConfettiController(duration: const Duration(seconds: 1));
+        _confettiControllerLeft = ConfettiController(duration: const Duration(seconds: 1));
+        _confettiControllerRight = ConfettiController(duration: const Duration(seconds: 1));
+      } catch (e) {
+        debugPrint('Error initializing confetti controllers: $e');
+        // Create a fallback state even if confetti fails
+        _isInitialized = true;
+      }
 
       // Start animations with delays
       Future.delayed(const Duration(milliseconds: 300), () {
@@ -175,28 +181,49 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
         }
       });
 
+      // Try to play confetti with error handling
       Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) {
-          try {
-            _confettiController.play();
-            _confettiControllerLeft.play();
-            _confettiControllerRight.play();
-            
-            // Set initialized to true after confetti starts
-            setState(() {
-              _isInitialized = true;
-            });
-          } catch (e) {
-            debugPrint('Error playing confetti: $e');
-            // Still mark as initialized even if confetti fails
-            setState(() {
-              _isInitialized = true;
-            });
-          }
+          _startConfetti();
         }
       });
     } catch (e) {
       debugPrint('Error initializing end screen: $e');
+      setState(() {
+        _isInitialized = true;
+      });
+    }
+  }
+
+  // Extracted method to better handle confetti errors
+  void _startConfetti() {
+    try {
+      // Try to play each controller separately with catch blocks
+      try {
+        _confettiController.play();
+      } catch (e) {
+        debugPrint('Error playing center confetti: $e');
+      }
+      
+      try {
+        _confettiControllerLeft.play();
+      } catch (e) {
+        debugPrint('Error playing left confetti: $e');
+      }
+      
+      try {
+        _confettiControllerRight.play();
+      } catch (e) {
+        debugPrint('Error playing right confetti: $e');
+      }
+      
+      // Set initialized to true after confetti attempts
+      setState(() {
+        _isInitialized = true;
+      });
+    } catch (e) {
+      debugPrint('Error in confetti initialization: $e');
+      // Still mark as initialized even if confetti fails
       setState(() {
         _isInitialized = true;
       });
@@ -436,21 +463,7 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
   @override
   void dispose() {
     try {
-      if (_confettiController.state == ConfettiControllerState.playing) {
-        _confettiController.stop();
-      }
-      _confettiController.dispose();
-      
-      if (_confettiControllerLeft.state == ConfettiControllerState.playing) {
-        _confettiControllerLeft.stop();
-      }
-      _confettiControllerLeft.dispose();
-      
-      if (_confettiControllerRight.state == ConfettiControllerState.playing) {
-        _confettiControllerRight.stop();
-      }
-      _confettiControllerRight.dispose();
-      
+      // Dispose animations first
       if (_fadeController.isAnimating) {
         _fadeController.stop();
       }
@@ -461,6 +474,34 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
         _pulseController.stop();
       }
       _pulseController.dispose();
+      
+      // Dispose confetti with individual try-catch blocks
+      try {
+        if (_confettiController.state == ConfettiControllerState.playing) {
+          _confettiController.stop();
+        }
+        _confettiController.dispose();
+      } catch (e) {
+        debugPrint("Error disposing center confetti: $e");
+      }
+      
+      try {
+        if (_confettiControllerLeft.state == ConfettiControllerState.playing) {
+          _confettiControllerLeft.stop();
+        }
+        _confettiControllerLeft.dispose();
+      } catch (e) {
+        debugPrint("Error disposing left confetti: $e");
+      }
+      
+      try {
+        if (_confettiControllerRight.state == ConfettiControllerState.playing) {
+          _confettiControllerRight.stop();
+        }
+        _confettiControllerRight.dispose();
+      } catch (e) {
+        debugPrint("Error disposing right confetti: $e");
+      }
     } catch (e) {
       debugPrint("Error disposing controllers: $e");
     }
@@ -592,6 +633,13 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
 
   // Center confetti widget with optimized parameters
   Widget _buildConfetti() {
+    // Safety check - if any controllers are null, return empty container
+    if (_confettiController == null || 
+        _confettiControllerLeft == null || 
+        _confettiControllerRight == null) {
+      return Container();
+    }
+    
     return Stack(
       children: [
         // Center confetti
@@ -600,18 +648,19 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
           child: ConfettiWidget(
             confettiController: _confettiController,
             blastDirectionality: BlastDirectionality.explosive,
-            maxBlastForce: 5, // Reduced force
-            minBlastForce: 2,
-            emissionFrequency: 0.02, // Reduced frequency
-            numberOfParticles: 8, // Reduced particles
+            maxBlastForce: 3, // Reduced force further
+            minBlastForce: 1,
+            emissionFrequency: 0.01, // Very low frequency
+            numberOfParticles: 5, // Even fewer particles
             gravity: 0.2,
             shouldLoop: false,
             colors: [
               Colors.white, 
               _endScreen['color'] as Color,
               (_endScreen['color'] as Color).withOpacity(0.7),
-              Colors.amber,
             ],
+            maximumSize: const Size(8, 4), // Small particles
+            minimumSize: const Size(4, 2),
             child: const SizedBox(),
           ),
         ),
@@ -622,17 +671,18 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
           child: ConfettiWidget(
             confettiController: _confettiControllerLeft,
             blastDirection: pi / 4, // 45 degrees
-            emissionFrequency: 0.01, // Reduced frequency
-            numberOfParticles: 4, // Reduced particles
-            maxBlastForce: 4, // Reduced force
-            minBlastForce: 2,
+            emissionFrequency: 0.005, // Minimal frequency
+            numberOfParticles: 3, // Very few particles
+            maxBlastForce: 2, // Minimal force
+            minBlastForce: 1,
             gravity: 0.2,
             shouldLoop: false,
             colors: [
               Colors.white, 
               _endScreen['color'] as Color,
-              Colors.blue,
             ],
+            maximumSize: const Size(8, 4), // Small particles
+            minimumSize: const Size(4, 2),
             child: const SizedBox(),
           ),
         ),
@@ -643,17 +693,18 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
           child: ConfettiWidget(
             confettiController: _confettiControllerRight,
             blastDirection: 3 * pi / 4, // 135 degrees
-            emissionFrequency: 0.01, // Reduced frequency
-            numberOfParticles: 4, // Reduced particles
-            maxBlastForce: 4, // Reduced force
-            minBlastForce: 2,
+            emissionFrequency: 0.005, // Minimal frequency
+            numberOfParticles: 3, // Very few particles
+            maxBlastForce: 2, // Minimal force
+            minBlastForce: 1,
             gravity: 0.2,
             shouldLoop: false,
             colors: [
               Colors.white, 
               _endScreen['color'] as Color,
-              Colors.green,
             ],
+            maximumSize: const Size(8, 4), // Small particles
+            minimumSize: const Size(4, 2),
             child: const SizedBox(),
           ),
         ),
