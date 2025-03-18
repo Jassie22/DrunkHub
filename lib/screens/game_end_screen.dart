@@ -35,15 +35,52 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
   bool _isLoading = false;
   bool _isInitialized = false;
   
-  // Super simplified end screens - just one option
-  final Map<String, dynamic> _endScreen = {
-    'id': 'legendary',
-    'title': 'Legendary Night',
-    'subtitle': 'This Night Has Entered the Hall of Fame',
-    'icon': '🌟',
-    'color': Colors.amber,
-    'photoMessage': 'Document this legendary moment!',
-  };
+  // List of Gen Z-themed end screens
+  final List<Map<String, dynamic>> _endScreens = [
+    {
+      'id': 'main_character',
+      'title': 'Main Character Energy',
+      'subtitle': 'The plot revolves around you now. Period.',
+      'icon': '✨',
+      'color': Colors.pink,
+      'photoMessage': 'Take a pic for the TL!',
+    },
+    {
+      'id': 'vibe_check',
+      'title': 'Vibe Check: Passed',
+      'subtitle': 'No cap, this sesh was actually bussin fr fr',
+      'icon': '🔥',
+      'color': Colors.orange,
+      'photoMessage': 'Pics or it didn\'t happen!',
+    },
+    {
+      'id': 'unhinged',
+      'title': 'Certified Unhinged',
+      'subtitle': 'Living your best chaotic era and we\'re here for it',
+      'icon': '🤪',
+      'color': Colors.purple,
+      'photoMessage': 'Document this fever dream!',
+    },
+    {
+      'id': 'core_memory',
+      'title': 'Core Memory Unlocked',
+      'subtitle': 'This night will live rent-free in your head',
+      'icon': '🧠',
+      'color': Colors.teal,
+      'photoMessage': 'Photo dump material right here!',
+    },
+    {
+      'id': 'glitch',
+      'title': 'Simulation Glitch',
+      'subtitle': 'The devs never expected you to get this far',
+      'icon': '👾',
+      'color': Colors.deepPurple,
+      'photoMessage': 'Save proof before they patch this bug!',
+    },
+  ];
+  
+  // Selected end screen
+  late Map<String, dynamic> _endScreen;
 
   @override
   void initState() {
@@ -52,6 +89,9 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
     // Set initialization flag immediately to show loading
     setState(() {
       _isInitialized = false;
+      
+      // Randomly select an end screen
+      _endScreen = _endScreens[Random().nextInt(_endScreens.length)];
     });
     
     try {
@@ -157,22 +197,53 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
   Widget _buildEndScreen() {
     return Stack(
       children: [
-        // Background - gradient
+        // Background - dynamic gradient based on selected theme
         Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFF1A237E), // Deep Blue
-                Color(0xFF7B1FA2), // Purple
-                Colors.amber,
+                const Color(0xFF1A237E), // Deep Blue base
+                _endScreen['color'] as Color, // Theme color
+                Colors.black.withOpacity(0.7), // Add depth
               ],
             ),
           ),
         ),
         
-        // Confetti - multiple sources
+        // Theme-specific background element based on end screen ID
+        if (_endScreen['id'] == 'main_character')
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.15,
+              child: SvgPicture.asset(
+                'assets/images/icon.svg',
+                fit: BoxFit.contain,
+                colorFilter: ColorFilter.mode(
+                  (_endScreen['color'] as Color).withOpacity(0.3),
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
+          ),
+        if (_endScreen['id'] == 'glitch')
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.2,
+              child: CustomPaint(
+                painter: GlitchPainter(),
+              ),
+            ),
+          ),
+        if (_endScreen['id'] == 'core_memory')
+          ..._buildBubbles(),
+        if (_endScreen['id'] == 'vibe_check')
+          ..._buildFireEmojis(),
+        if (_endScreen['id'] == 'unhinged')
+          ..._buildChaosElements(),
+        
+        // Confetti - multiple sources with theme colors
         Align(
           alignment: Alignment.topCenter,
           child: ConfettiWidget(
@@ -184,7 +255,12 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
             numberOfParticles: 10,
             gravity: 0.2,
             shouldLoop: false,
-            colors: const [Colors.white, Colors.blue, Colors.pink, Colors.amber, Colors.purple],
+            colors: [
+              Colors.white, 
+              _endScreen['color'] as Color,
+              (_endScreen['color'] as Color).withOpacity(0.7),
+              Colors.amber,
+            ],
             child: const SizedBox(),
           ),
         ),
@@ -201,7 +277,11 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
             minBlastForce: 3,
             gravity: 0.2,
             shouldLoop: false,
-            colors: const [Colors.white, Colors.blue, Colors.green, Colors.yellow],
+            colors: [
+              Colors.white, 
+              _endScreen['color'] as Color,
+              Colors.blue,
+            ],
             child: const SizedBox(),
           ),
         ),
@@ -218,7 +298,11 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
             minBlastForce: 3,
             gravity: 0.2,
             shouldLoop: false,
-            colors: const [Colors.white, Colors.red, Colors.orange, Colors.purple],
+            colors: [
+              Colors.white, 
+              _endScreen['color'] as Color,
+              Colors.orange,
+            ],
             child: const SizedBox(),
           ),
         ),
@@ -254,17 +338,30 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
                     ),
                     const SizedBox(height: 12),
 
-                    // Title
+                    // Title with theme-specific styling
                     FadeTransition(
                       opacity: _fadeAnimation,
-                      child: Text(
-                        _endScreen['title'],
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      child: ShaderMask(
+                        shaderCallback: (bounds) {
+                          return LinearGradient(
+                            colors: [
+                              Colors.white,
+                              _endScreen['color'] as Color,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ).createShader(bounds);
+                        },
+                        child: Text(
+                          _endScreen['title'],
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: _endScreen['id'] == 'glitch' ? -1 : 1,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        textAlign: TextAlign.center,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -284,242 +381,13 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
                     const SizedBox(height: 16),
 
                     // Player Names - with gradient
-                    FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Colors.white.withAlpha(51),
-                              Colors.purple.withAlpha(51),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: Colors.white.withAlpha(77),
-                            width: 1,
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            const Text(
-                              'Players',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              alignment: WrapAlignment.center,
-                              children: widget.players.map((player) => Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withAlpha(77),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  player,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              )).toList(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Photo Section - with gradient frame
-                    FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: Column(
-                        children: [
-                          if (_groupPhoto != null) ...[
-                            // Photo with gradient decoration
-                            Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Color(0xFF1A237E),
-                                    Color(0xFF7B1FA2),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withAlpha(40),
-                                    blurRadius: 6,
-                                    spreadRadius: 1,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                children: [
-                                  // Photo
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: AspectRatio(
-                                        aspectRatio: 4/3,
-                                        child: Image.file(
-                                          _groupPhoto!,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  
-                                  // Gradient footer
-                                  Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.symmetric(vertical: 8),
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.centerLeft,
-                                        end: Alignment.centerRight,
-                                        colors: [
-                                          Color(0xFF1A237E),
-                                          Color(0xFF7B1FA2),
-                                        ],
-                                      ),
-                                      borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.circular(12),
-                                        bottomRight: Radius.circular(12),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      "DrunkHub 🍻",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            // Single button for sharing
-                            ElevatedButton.icon(
-                              onPressed: _sharePhoto,
-                              icon: const Icon(Icons.share, size: 16),
-                              label: const Text('Share Photo'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: const Color(0xFF1A237E),
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              ),
-                            ),
-                          ] else
-                            ElevatedButton.icon(
-                              onPressed: _isLoading ? null : _takeGroupPhoto,
-                              icon: _isLoading
-                                  ? const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
-                                    )
-                                  : const Icon(Icons.camera_alt, size: 16),
-                              label: Text(_isLoading ? 'Taking Photo...' : _endScreen['photoMessage']),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: const Color(0xFF1A237E),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Action Buttons - with gradient
-                    FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: Column(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                                colors: [
-                                  Colors.white,
-                                  Colors.white,
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
-                                foregroundColor: const Color(0xFF1A237E),
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                elevation: 0,
-                                shadowColor: Colors.transparent,
-                              ),
-                              onPressed: widget.onPlayAgain,
-                              child: const Text(
-                                'Play Again',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              TextButton(
-                                onPressed: widget.onNewGame,
-                                child: const Text(
-                                  'New Game',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              TextButton(
-                                onPressed: widget.onHome,
-                                child: const Text(
-                                  'Home',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                    _buildPlayerNames(),
+                    
+                    // Photo section
+                    _buildPhotoSection(),
+                    
+                    // Buttons
+                    _buildButtons(),
                   ],
                 ),
               ),
@@ -532,10 +400,16 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: true,
-      onPopInvoked: (didPop) {
-        // Clean up before popping
+    if (!_isInitialized) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    
+    return WillPopScope(
+      onWillPop: () async {
         try {
           if (_confettiController.state == ConfettiControllerState.playing) {
             _confettiController.stop();
@@ -546,21 +420,13 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
           if (_confettiControllerRight.state == ConfettiControllerState.playing) {
             _confettiControllerRight.stop();
           }
-          if (_fadeController.isAnimating) {
-            _fadeController.stop();
-          }
         } catch (e) {
-          debugPrint("Error on back press: $e");
+          debugPrint("Error stopping confetti: $e");
         }
+        return true;
       },
       child: Scaffold(
-        body: _isInitialized 
-          ? _buildEndScreen()
-          : const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
-              ),
-            ),
+        body: _buildEndScreen(),
       ),
     );
   }
@@ -592,4 +458,443 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
     }
     super.dispose();
   }
+
+  // Create floating bubbles for the core memory theme
+  List<Widget> _buildBubbles() {
+    final bubbles = <Widget>[];
+    final random = Random();
+    
+    for (int i = 0; i < 15; i++) {
+      final size = random.nextDouble() * 60 + 20;
+      bubbles.add(
+        Positioned(
+          left: random.nextDouble() * MediaQuery.of(context).size.width,
+          top: random.nextDouble() * MediaQuery.of(context).size.height,
+          child: TweenAnimationBuilder(
+            tween: Tween<double>(begin: 0, end: 1),
+            duration: Duration(seconds: random.nextInt(5) + 5),
+            builder: (context, double value, child) {
+              return Transform.translate(
+                offset: Offset(
+                  10 * sin(value * 2 * pi),
+                  -50 * value % MediaQuery.of(context).size.height,
+                ),
+                child: Opacity(
+                  opacity: 0.4 - (0.2 * value),
+                  child: Container(
+                    width: size,
+                    height: size,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          Colors.white.withOpacity(0.9),
+                          _endScreen['color'] as Color,
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
+    
+    return bubbles;
+  }
+
+  // Create floating fire emojis for vibe check theme
+  List<Widget> _buildFireEmojis() {
+    final emojis = <Widget>[];
+    final random = Random();
+    
+    for (int i = 0; i < 10; i++) {
+      final size = random.nextDouble() * 30 + 15;
+      emojis.add(
+        Positioned(
+          left: random.nextDouble() * MediaQuery.of(context).size.width,
+          bottom: -20.0,
+          child: TweenAnimationBuilder(
+            tween: Tween<double>(begin: 0, end: 1),
+            duration: Duration(seconds: random.nextInt(6) + 7),
+            builder: (context, double value, child) {
+              return Transform.translate(
+                offset: Offset(
+                  5 * sin(value * 3 * pi),
+                  -MediaQuery.of(context).size.height * value,
+                ),
+                child: Opacity(
+                  opacity: 0.7 - (0.7 * value),
+                  child: Text(
+                    '🔥',
+                    style: TextStyle(
+                      fontSize: size,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
+    
+    return emojis;
+  }
+
+  // Create chaotic elements for the unhinged theme
+  List<Widget> _buildChaosElements() {
+    final elements = <Widget>[];
+    final random = Random();
+    final emojis = ['🤪', '💫', '🌀', '👁️', '💅', '✨', '💯', '🙃'];
+    
+    for (int i = 0; i < 20; i++) {
+      final size = random.nextDouble() * 30 + 15;
+      final emoji = emojis[random.nextInt(emojis.length)];
+      elements.add(
+        Positioned(
+          left: random.nextDouble() * MediaQuery.of(context).size.width,
+          top: random.nextDouble() * MediaQuery.of(context).size.height,
+          child: TweenAnimationBuilder(
+            tween: Tween<double>(begin: 0, end: 2 * pi),
+            duration: Duration(seconds: random.nextInt(8) + 5),
+            builder: (context, double value, child) {
+              return Transform.rotate(
+                angle: value,
+                child: Opacity(
+                  opacity: 0.6,
+                  child: Text(
+                    emoji,
+                    style: TextStyle(
+                      fontSize: size,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
+    
+    return elements;
+  }
+
+  // Build player names section
+  Widget _buildPlayerNames() {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              (_endScreen['color'] as Color).withAlpha(51),
+              Colors.white.withAlpha(51),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withAlpha(77),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            const Text(
+              'Players',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
+              children: widget.players.map((player) => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: (_endScreen['color'] as Color).withAlpha(77),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  player,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+              )).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Build photo section
+  Widget _buildPhotoSection() {
+    return Column(
+      children: [
+        FadeTransition(
+          opacity: _fadeAnimation,
+          child: Column(
+            children: [
+              if (_groupPhoto != null) ...[
+                // Photo with gradient decoration
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color(0xFF1A237E),
+                        _endScreen['color'] as Color,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withAlpha(40),
+                        blurRadius: 6,
+                        spreadRadius: 1,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      // Photo
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: AspectRatio(
+                            aspectRatio: 4/3,
+                            child: Image.file(
+                              _groupPhoto!,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                      
+                      // Gradient footer with dynamic theme text
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [
+                              const Color(0xFF1A237E),
+                              _endScreen['color'] as Color,
+                            ],
+                          ),
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(12),
+                            bottomRight: Radius.circular(12),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _endScreen['icon'],
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              "DrunkHub",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Single button for sharing
+                ElevatedButton.icon(
+                  onPressed: _sharePhoto,
+                  icon: const Icon(Icons.share, size: 16),
+                  label: const Text('Share Photo'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF1A237E),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+                ),
+              ] else
+                ElevatedButton.icon(
+                  onPressed: _isLoading ? null : _takeGroupPhoto,
+                  icon: _isLoading
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.camera_alt, size: 16),
+                  label: Text(_isLoading ? 'Taking Photo...' : _endScreen['photoMessage']),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF1A237E),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  // Build buttons
+  Widget _buildButtons() {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  Colors.white,
+                  Colors.white,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: const Color(0xFF1A237E),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 0,
+                shadowColor: Colors.transparent,
+              ),
+              onPressed: widget.onPlayAgain,
+              child: Text(
+                _getPlayAgainText(),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                onPressed: widget.onNewGame,
+                child: const Text(
+                  'New Game',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              TextButton(
+                onPressed: widget.onHome,
+                child: const Text(
+                  'Home',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Get theme-specific play again text
+  String _getPlayAgainText() {
+    switch (_endScreen['id']) {
+      case 'main_character':
+        return 'Next Episode';
+      case 'vibe_check':
+        return 'Keep the Vibe Going';
+      case 'unhinged':
+        return 'Get Even More Unhinged';
+      case 'core_memory':
+        return 'Make More Memories';
+      case 'glitch':
+        return 'Hack Again';
+      default:
+        return 'Play Again';
+    }
+  }
+}
+
+// Custom painter for glitch effect
+class GlitchPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final random = Random();
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.3)
+      ..style = PaintingStyle.fill;
+    
+    // Draw random glitch rectangles
+    for (int i = 0; i < 20; i++) {
+      final left = random.nextDouble() * size.width;
+      final top = random.nextDouble() * size.height;
+      final width = random.nextDouble() * 100 + 20;
+      final height = random.nextDouble() * 8 + 2;
+      
+      canvas.drawRect(
+        Rect.fromLTWH(left, top, width, height),
+        paint,
+      );
+    }
+    
+    // Draw some random lines
+    for (int i = 0; i < 15; i++) {
+      final startX = random.nextDouble() * size.width;
+      final startY = random.nextDouble() * size.height;
+      final endX = startX + random.nextDouble() * 100 - 50;
+      final endY = startY + random.nextDouble() * 20 - 10;
+      
+      canvas.drawLine(
+        Offset(startX, startY),
+        Offset(endX, endY),
+        paint..strokeWidth = random.nextDouble() * 2 + 1,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 } 
