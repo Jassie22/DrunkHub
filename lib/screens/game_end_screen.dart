@@ -24,7 +24,7 @@ class GameEndScreen extends StatefulWidget {
   State<GameEndScreen> createState() => _GameEndScreenState();
 }
 
-class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProviderStateMixin {
+class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateMixin {
   // Use nullable types for confetti controllers to handle potential initialization failures
   ConfettiController? _confettiController;
   ConfettiController? _confettiControllerLeft;
