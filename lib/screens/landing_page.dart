@@ -299,7 +299,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  'Quick Drink Mode',
+                                  'Surprise Shot Mode',
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.white,
@@ -323,7 +323,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Random 3-second drink alerts during the game',
+                            'Random shot alerts during the game',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.white.withAlpha(180),
@@ -337,7 +337,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                     
                     // Share app button (more prominent)
                     Container(
-                      margin: const EdgeInsets.only(bottom: 15),
+                      margin: const EdgeInsets.only(bottom: 30),
                       child: ElevatedButton.icon(
                         onPressed: () {
                           Share.share(

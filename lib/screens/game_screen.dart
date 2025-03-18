@@ -483,7 +483,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                     // Mute button
                     Positioned(
                       top: 16,
-                      right: 70, // Position next to app logo
+                      right: 16, // Move to right edge since logo is removed
                       child: IconButton(
                         icon: Icon(
                           _isMuted ? Icons.volume_off : Icons.volume_up,
@@ -498,20 +498,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                       ),
                     ),
                     
-                    // App logo
-                    Positioned(
-                      top: 16,
-                      right: 16,
-                      child: SvgPicture.asset(
-                        'assets/images/icon.svg',
-                        width: 40,
-                        height: 40,
-                        colorFilter: const ColorFilter.mode(
-                          Colors.white,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                    ),
+                    // App logo removed
                     
                     Center(
                       child: _isInitialized 
@@ -537,54 +524,89 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                     child: GestureDetector(
                       onTap: () {}, // Prevent taps from passing through
                       child: Container(
-                        color: Colors.red.withAlpha(230), // More opaque red
+                        decoration: BoxDecoration(
+                          // Gradient background instead of flat color
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.red.shade900,
+                              Colors.red.shade800,
+                              Colors.red.shade700,
+                            ],
+                          ),
+                        ),
                         child: Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               // Animated icon for attention
-                              Icon(
-                                Icons.warning_amber_rounded,
-                                color: Colors.white,
-                                size: 80,
-                              ),
-                              const SizedBox(height: 10),
-                              const Text(
-                                'DRINK NOW!',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 50, // Larger text
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 2, // More spaced letters
-                                  shadows: [
-                                    Shadow(
-                                      blurRadius: 10,
-                                      color: Colors.black,
-                                      offset: Offset(2, 2),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 20),
                               Container(
+                                padding: const EdgeInsets.all(15),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.white,
+                                  border: Border.all(color: Colors.white, width: 2),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.5),
-                                      blurRadius: 10,
+                                      color: Colors.black.withOpacity(0.3),
+                                      blurRadius: 15,
                                       spreadRadius: 2,
                                     ),
                                   ],
                                 ),
-                                padding: const EdgeInsets.all(10),
+                                child: const Icon(
+                                  Icons.local_bar_rounded,
+                                  color: Colors.white,
+                                  size: 60,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              ShaderMask(
+                                shaderCallback: (bounds) => LinearGradient(
+                                  colors: [Colors.white, Colors.white.withOpacity(0.8)],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ).createShader(bounds),
+                                child: const Text(
+                                  'SHOT TIME!',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 50, 
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 2,
+                                    shadows: [
+                                      Shadow(
+                                        blurRadius: 10,
+                                        color: Colors.black54,
+                                        offset: Offset(2, 2),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: RadialGradient(
+                                    colors: [Colors.white, Colors.white.withOpacity(0.9)],
+                                    radius: 0.8,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.5),
+                                      blurRadius: 15,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                                padding: const EdgeInsets.all(20),
                                 child: Text(
                                   '$_quickDrinkCountdown',
-                                  style: const TextStyle(
-                                    color: Colors.red,
+                                  style: TextStyle(
+                                    color: Colors.red.shade900,
                                     fontSize: 100,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w900,
                                   ),
                                 ),
                               ),
@@ -607,7 +629,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       onTap: _nextPrompt,
       child: Container(
         width: MediaQuery.of(context).size.width * 0.85,
-        height: MediaQuery.of(context).size.height * 0.55,
+        height: MediaQuery.of(context).size.height * 0.65, // Taller card
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
@@ -762,16 +784,9 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         },
         child: Container(
           width: MediaQuery.of(context).size.width * 0.85,
-          height: MediaQuery.of(context).size.height * 0.55,
+          height: MediaQuery.of(context).size.height * 0.65, // Taller, more rectangular card
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white,
-                Color(0xFFF5F5F5),
-              ],
-            ),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
@@ -781,6 +796,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                 offset: const Offset(0, 2),
               ),
             ],
+            border: Border.all(
+              color: Colors.grey.withOpacity(0.2),
+              width: 1.0,
+            ),
           ),
           child: Stack(
             alignment: Alignment.center,
