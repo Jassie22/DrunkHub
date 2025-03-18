@@ -640,6 +640,31 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                 ),
                               ),
                               const SizedBox(height: 20),
+                              // Instructions for drink
+                              Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 32),
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+                                ),
+                                child: const Text(
+                                  'Take 3 sips or 1 shot if you\'re feeling brave!',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    shadows: [Shadow(
+                                      color: Colors.black54,
+                                      blurRadius: 3,
+                                      offset: Offset(1, 1),
+                                    )],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
                               // Skip button
                               TextButton(
                                 onPressed: _skipQuickDrink,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'screens/landing_page.dart';
+import 'package:image_watermark/image_watermark.dart';
 
 void main() async {
   // Ensure Flutter is initialized
@@ -57,7 +58,23 @@ class MyApp extends StatelessWidget {
           titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
       ),
-      home: const LandingPage(),
+      home: Stack(
+        children: [
+          const LandingPage(),
+          Positioned(
+            right: 10,
+            bottom: 10,
+            child: Text(
+              'DrunkHub',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.4),
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
       builder: (context, child) {
         // Add global error handling widget
         return MediaQuery(
