@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
-import 'package:confetti/confetti.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -25,10 +24,7 @@ class GameEndScreen extends StatefulWidget {
 }
 
 class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateMixin {
-  // Use nullable types for confetti controllers to handle potential initialization failures
-  ConfettiController? _confettiController;
-  ConfettiController? _confettiControllerLeft;
-  ConfettiController? _confettiControllerRight;
+  // Remove all confetti-related variables
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
   late AnimationController _pulseController;
@@ -36,7 +32,6 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
   File? _groupPhoto;
   bool _isLoading = false;
   bool _isInitialized = false;
-  bool _confettiEnabled = true; // Flag to disable confetti if initialization fails
   
   // List of Gen Z-themed end screens
   final List<Map<String, dynamic>> _endScreens = [
@@ -163,77 +158,18 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
       
       // Start pulse animation and repeat
       _pulseController.repeat();
-      
-      // Initialize confetti controllers with shorter duration and try-catch
-      _initializeConfetti();
 
-      // Start animations with delays
+      // Start animations and mark as initialized
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) {
           _fadeController.forward();
-        }
-      });
-
-      // Try to play confetti with error handling after a delay
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) {
-          _startConfetti();
+          setState(() {
+            _isInitialized = true;
+          });
         }
       });
     } catch (e) {
       debugPrint('Error initializing end screen: $e');
-      setState(() {
-        _isInitialized = true;
-        _confettiEnabled = false; // Disable confetti on general initialization error
-      });
-    }
-  }
-
-  // Extracted method to initialize confetti in a controlled way
-  void _initializeConfetti() {
-    try {
-      _confettiController = ConfettiController(duration: const Duration(milliseconds: 500));
-      _confettiControllerLeft = ConfettiController(duration: const Duration(milliseconds: 500));
-      _confettiControllerRight = ConfettiController(duration: const Duration(milliseconds: 500));
-    } catch (e) {
-      debugPrint('Error initializing confetti controllers: $e');
-      // Mark as initialized but disable confetti
-      _confettiEnabled = false;
-      _isInitialized = true;
-    }
-  }
-
-  // Extracted method to better handle confetti errors
-  void _startConfetti() {
-    if (!_confettiEnabled) {
-      // If confetti is disabled, still mark as initialized
-      setState(() {
-        _isInitialized = true;
-      });
-      return;
-    }
-
-    try {
-      // Only play confetti if controllers are properly initialized
-      if (_confettiController != null) {
-        _confettiController!.play();
-      }
-      
-      if (_confettiControllerLeft != null) {
-        _confettiControllerLeft!.play();
-      }
-      
-      if (_confettiControllerRight != null) {
-        _confettiControllerRight!.play();
-      }
-      
-      // Set initialized to true after confetti attempts
-      setState(() {
-        _isInitialized = true;
-      });
-    } catch (e) {
-      debugPrint('Error in confetti initialization: $e');
-      // Still mark as initialized even if confetti fails
       setState(() {
         _isInitialized = true;
       });
@@ -343,9 +279,6 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
         if (_endScreen['id'] == 'unhinged')
           ..._buildChaosElements(),
         
-        // Confetti - multiple sources with theme colors
-        _buildConfetti(),
-        
         // Content
         SafeArea(
           child: Center(
@@ -356,7 +289,7 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Icon with pulse animation (removed app logo)
+                    // Icon with pulse animation
                     FadeTransition(
                       opacity: _fadeAnimation,
                       child: Center(
@@ -376,7 +309,7 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
                     ),
                     const SizedBox(height: 12),
 
-                    // Title with improved gradient that doesn't fade out too much
+                    // Title with improved gradient
                     FadeTransition(
                       opacity: _fadeAnimation,
                       child: ShaderMask(
@@ -384,11 +317,11 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
                           return LinearGradient(
                             colors: [
                               Colors.white,
-                              Colors.white.withOpacity(0.9), // Higher opacity to prevent too much fade
+                              Colors.white.withOpacity(0.9),
                             ],
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,
-                            stops: const [0.0, 0.9], // Adjusted stops for less fading
+                            stops: const [0.0, 0.9],
                           ).createShader(bounds);
                         },
                         child: Text(
@@ -425,7 +358,7 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
                     // Photo section
                     _buildPhotoSection(),
                     
-                    // Buttons - simplified with only Play Again and Home
+                    // Buttons - with Back instead of Home
                     _buildButtons(),
                   ],
                 ),
@@ -449,19 +382,6 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
     
     return WillPopScope(
       onWillPop: () async {
-        try {
-          if (_confettiController?.state == ConfettiControllerState.playing) {
-            _confettiController?.stop();
-          }
-          if (_confettiControllerLeft?.state == ConfettiControllerState.playing) {
-            _confettiControllerLeft?.stop();
-          }
-          if (_confettiControllerRight?.state == ConfettiControllerState.playing) {
-            _confettiControllerRight?.stop();
-          }
-        } catch (e) {
-          debugPrint("Error stopping confetti: $e");
-        }
         return true;
       },
       child: Scaffold(
@@ -473,7 +393,7 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
   @override
   void dispose() {
     try {
-      // Dispose animations first
+      // Dispose animations
       if (_fadeController.isAnimating) {
         _fadeController.stop();
       }
@@ -484,28 +404,272 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
         _pulseController.stop();
       }
       _pulseController.dispose();
-      
-      // Dispose confetti controllers safely
-      _disposeConfetti(_confettiController, "center");
-      _disposeConfetti(_confettiControllerLeft, "left");
-      _disposeConfetti(_confettiControllerRight, "right");
     } catch (e) {
       debugPrint("Error disposing controllers: $e");
     }
     super.dispose();
   }
 
-  // Helper method to safely dispose a confetti controller
-  void _disposeConfetti(ConfettiController? controller, String name) {
-    if (controller != null) {
-      try {
-        if (controller.state == ConfettiControllerState.playing) {
-          controller.stop();
-        }
-        controller.dispose();
-      } catch (e) {
-        debugPrint("Error disposing $name confetti: $e");
-      }
+  // Build player names section
+  Widget _buildPlayerNames() {
+    return FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+              (_endScreen['color'] as Color).withAlpha(51),
+                              Colors.white.withAlpha(51),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.white.withAlpha(77),
+                            width: 1,
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            const Text(
+                              'Players',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              alignment: WrapAlignment.center,
+                              children: widget.players.map((player) => Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                  color: (_endScreen['color'] as Color).withAlpha(77),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  player,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
+    );
+  }
+
+  // Build photo section with thinner banner
+  Widget _buildPhotoSection() {
+    return Column(
+      children: [
+                    FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: Column(
+                        children: [
+                          if (_groupPhoto != null) ...[
+                            // Photo with gradient decoration
+                            Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                        const Color(0xFF1A237E),
+                        _endScreen['color'] as Color,
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withAlpha(40),
+                                    blurRadius: 6,
+                                    spreadRadius: 1,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                children: [
+                                  // Photo
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: AspectRatio(
+                                        aspectRatio: 4/3,
+                                        child: Image.file(
+                                          _groupPhoto!,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  
+                      // Thinner banner with just the icon and DrunkHub text
+                                  Container(
+                                    width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 4), // Reduced vertical padding
+                        decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                        colors: [
+                              const Color(0xFF1A237E).withOpacity(0.8), // More transparent
+                              _endScreen['color'] as Color,
+                                        ],
+                                      ),
+                          borderRadius: const BorderRadius.only(
+                                        bottomLeft: Radius.circular(12),
+                                        bottomRight: Radius.circular(12),
+                                      ),
+                                    ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _endScreen['icon'],
+                              style: const TextStyle(fontSize: 14), // Smaller icon
+                            ),
+                            const SizedBox(width: 4), // Less spacing
+                            const Text(
+                              "DrunkHub",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                fontSize: 12, // Smaller text
+                                      ),
+                            ),
+                          ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            // Single button for sharing
+                            ElevatedButton.icon(
+                              onPressed: _sharePhoto,
+                              icon: const Icon(Icons.share, size: 16),
+                              label: const Text('Share Photo'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: const Color(0xFF1A237E),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              ),
+                            ),
+                          ] else
+                            ElevatedButton.icon(
+                              onPressed: _isLoading ? null : _takeGroupPhoto,
+                              icon: _isLoading
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    )
+                                  : const Icon(Icons.camera_alt, size: 16),
+                              label: Text(_isLoading ? 'Taking Photo...' : _endScreen['photoMessage']),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: const Color(0xFF1A237E),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  // Build buttons - replace Home with Back
+  Widget _buildButtons() {
+    return FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                                colors: [
+                                  Colors.white,
+                                  Colors.white,
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                foregroundColor: const Color(0xFF1A237E),
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                elevation: 0,
+                                shadowColor: Colors.transparent,
+                              ),
+                              onPressed: widget.onPlayAgain,
+              child: Text(
+                _getPlayAgainText(),
+                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+          TextButton.icon(
+            onPressed: () {
+              // Go back to game selection instead of home
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.arrow_back, size: 16, color: Colors.white),
+            label: const Text(
+              'Back to Selection',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+        ],
+      ),
+    );
+  }
+
+  // Get theme-specific play again text
+  String _getPlayAgainText() {
+    switch (_endScreen['id']) {
+      case 'main_character':
+        return 'Next Episode';
+      case 'vibe_check':
+        return 'Keep the Vibe Going';
+      case 'unhinged':
+        return 'Get Even More Unhinged';
+      case 'core_memory':
+        return 'Make More Memories';
+      case 'glitch':
+        return 'Hack Again';
+      default:
+        return 'Play Again';
     }
   }
 
@@ -630,349 +794,6 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
     }
     
     return elements;
-  }
-
-  // Center confetti widget with optimized parameters
-  Widget _buildConfetti() {
-    // If confetti is disabled or any controller is null, return empty container
-    if (!_confettiEnabled || 
-        _confettiController == null || 
-        _confettiControllerLeft == null || 
-        _confettiControllerRight == null) {
-      return Container();
-    }
-    
-    return Stack(
-      children: [
-        // Center confetti
-        Align(
-          alignment: Alignment.topCenter,
-          child: ConfettiWidget(
-            confettiController: _confettiController!,
-            blastDirectionality: BlastDirectionality.explosive,
-            maxBlastForce: 2, // Further reduced force
-            minBlastForce: 1,
-            emissionFrequency: 0.005, // Minimal frequency
-            numberOfParticles: 3, // Even fewer particles
-            gravity: 0.1, // Lower gravity
-            shouldLoop: false,
-            colors: [
-              Colors.white, 
-              _endScreen['color'] as Color,
-            ],
-            maximumSize: const Size(6, 3), // Smaller particles
-            minimumSize: const Size(3, 2),
-            child: const SizedBox(),
-          ),
-        ),
-        
-        // Left side confetti
-        Align(
-          alignment: Alignment.topLeft,
-          child: ConfettiWidget(
-            confettiController: _confettiControllerLeft!,
-            blastDirection: pi / 4, // 45 degrees
-            emissionFrequency: 0.003, // Minimal frequency
-            numberOfParticles: 2, // Minimal particles
-            maxBlastForce: 1, // Minimal force
-            minBlastForce: 0.5,
-            gravity: 0.1, // Lower gravity
-            shouldLoop: false,
-            colors: [
-              Colors.white, 
-              _endScreen['color'] as Color,
-            ],
-            maximumSize: const Size(6, 3), // Smaller particles
-            minimumSize: const Size(3, 2),
-            child: const SizedBox(),
-          ),
-        ),
-        
-        // Right side confetti
-        Align(
-          alignment: Alignment.topRight,
-          child: ConfettiWidget(
-            confettiController: _confettiControllerRight!,
-            blastDirection: 3 * pi / 4, // 135 degrees
-            emissionFrequency: 0.003, // Minimal frequency
-            numberOfParticles: 2, // Minimal particles
-            maxBlastForce: 1, // Minimal force
-            minBlastForce: 0.5,
-            gravity: 0.1, // Lower gravity
-            shouldLoop: false,
-            colors: [
-              Colors.white, 
-              _endScreen['color'] as Color,
-            ],
-            maximumSize: const Size(6, 3), // Smaller particles
-            minimumSize: const Size(3, 2),
-            child: const SizedBox(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Build player names section
-  Widget _buildPlayerNames() {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              (_endScreen['color'] as Color).withAlpha(51),
-              Colors.white.withAlpha(51),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.white.withAlpha(77),
-            width: 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            const Text(
-              'Players',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              alignment: WrapAlignment.center,
-              children: widget.players.map((player) => Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: (_endScreen['color'] as Color).withAlpha(77),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  player,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                  ),
-                ),
-              )).toList(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Build photo section with thinner banner
-  Widget _buildPhotoSection() {
-    return Column(
-      children: [
-        FadeTransition(
-          opacity: _fadeAnimation,
-          child: Column(
-            children: [
-              if (_groupPhoto != null) ...[
-                // Photo with gradient decoration
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        const Color(0xFF1A237E),
-                        _endScreen['color'] as Color,
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(40),
-                        blurRadius: 6,
-                        spreadRadius: 1,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      // Photo
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: AspectRatio(
-                            aspectRatio: 4/3,
-                            child: Image.file(
-                              _groupPhoto!,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
-                      
-                      // Thinner banner with just the icon and DrunkHub text
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 4), // Reduced vertical padding
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: [
-                              const Color(0xFF1A237E).withOpacity(0.8), // More transparent
-                              _endScreen['color'] as Color,
-                            ],
-                          ),
-                          borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(12),
-                            bottomRight: Radius.circular(12),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              _endScreen['icon'],
-                              style: const TextStyle(fontSize: 14), // Smaller icon
-                            ),
-                            const SizedBox(width: 4), // Less spacing
-                            const Text(
-                              "DrunkHub",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12, // Smaller text
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                // Single button for sharing
-                ElevatedButton.icon(
-                  onPressed: _sharePhoto,
-                  icon: const Icon(Icons.share, size: 16),
-                  label: const Text('Share Photo'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF1A237E),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  ),
-                ),
-              ] else
-                ElevatedButton.icon(
-                  onPressed: _isLoading ? null : _takeGroupPhoto,
-                  icon: _isLoading
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.camera_alt, size: 16),
-                  label: Text(_isLoading ? 'Taking Photo...' : _endScreen['photoMessage']),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF1A237E),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-      ],
-    );
-  }
-
-  // Build buttons - removed New Game button
-  Widget _buildButtons() {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Column(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Colors.white,
-                  Colors.white,
-                ],
-              ),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                foregroundColor: const Color(0xFF1A237E),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                elevation: 0,
-                shadowColor: Colors.transparent,
-              ),
-              onPressed: widget.onPlayAgain,
-              child: Text(
-                _getPlayAgainText(),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          TextButton(
-            onPressed: () {
-              // Navigate all the way back to the landing page
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
-            child: const Text(
-              'Home',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Get theme-specific play again text
-  String _getPlayAgainText() {
-    switch (_endScreen['id']) {
-      case 'main_character':
-        return 'Next Episode';
-      case 'vibe_check':
-        return 'Keep the Vibe Going';
-      case 'unhinged':
-        return 'Get Even More Unhinged';
-      case 'core_memory':
-        return 'Make More Memories';
-      case 'glitch':
-        return 'Hack Again';
-      default:
-        return 'Play Again';
-    }
   }
 
   // Create elements for new "Slay" theme

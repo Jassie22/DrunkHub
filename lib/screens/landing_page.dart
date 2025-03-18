@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'game_mode_selection_page.dart';
 import '../utils/app_assets.dart';
+import 'package:share_plus/share_plus.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -46,10 +47,10 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
     super.dispose();
   }
 
-  void _addPlayer() {
-    if (_controller.text.trim().isNotEmpty) {
+  void _addPlayer(String? text) {
+    if (text?.trim().isNotEmpty == true) {
       setState(() {
-        players.add(_controller.text.trim());
+        players.add(text!.trim());
         _controller.clear();
       });
     }
@@ -166,207 +167,238 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Stack(
         children: [
+          // Background video or image
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xFF1A237E), // Deep Blue
-                  Color(0xFF7B1FA2), // Purple
-                  Colors.white,
+                  Color(0xFF1A237E),
+                  Colors.black,
                 ],
               ),
             ),
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    AppAssets.getAppIconSvg(
-                      width: 120,
-                      height: 120,
-                    ),
-                    const Text(
-                      'DRUNKHUB',
-                      style: TextStyle(
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF1A237E),
-                            Color(0xFF7B1FA2),
-                          ],
-                          stops: [0.0, 1.0],
+          ),
+          
+          // Logo and content
+          SafeArea(
+            child: Column(
+              children: [
+                // App logo and title
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    children: [
+                      AppAssets.getAppIconSvg(width: 80, height: 80),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'DRUNKHUB',
+                        style: TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 2,
                         ),
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(26),
-                            blurRadius: 10,
-                            spreadRadius: 5,
-                          ),
-                        ],
                       ),
-                      child: Column(
-                        children: [
-                          Row(
+                      const SizedBox(height: 5),
+                      const Text(
+                        'Social Drinking Game',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Player list and add player functionality
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Player counter and help text
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            RichText(
+                              text: TextSpan(
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
+                                children: [
+                                  const TextSpan(text: 'Players: '),
+                                  TextSpan(
+                                    text: '${players.length}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.help_outline,
+                                color: Colors.white70,
+                              ),
+                              onPressed: () {
+                                // Show help dialog
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => const AlertDialog(
+                                    title: Text('How to Play'),
+                                    content: Text('Add players to the game, select game modes, and enjoy responsibly! The app will randomly select prompts based on the modes you choose.'),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        
+                        // Player list
+                        Expanded(
+                          child: players.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    'Add players to start',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.white.withAlpha(150),
+                                    ),
+                                  ),
+                                )
+                              : ListView.builder(
+                                  itemCount: players.length,
+                                  itemBuilder: (context, index) {
+                                    final player = players[index];
+                                    return Card(
+                                      color: Colors.white.withOpacity(0.1),
+                                      margin: const EdgeInsets.symmetric(vertical: 5),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: ListTile(
+                                        title: Text(
+                                          player,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        trailing: IconButton(
+                                          icon: const Icon(
+                                            Icons.delete,
+                                            color: Colors.red,
+                                          ),
+                                          onPressed: () {
+                                            setState(() {
+                                              players.removeAt(index);
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                        ),
+                        
+                        // Add player field
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 10),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Row(
                             children: [
                               Expanded(
                                 child: TextField(
                                   controller: _controller,
-                                  decoration: InputDecoration(
+                                  style: const TextStyle(color: Colors.white),
+                                  decoration: const InputDecoration(
                                     hintText: 'Enter player name',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    filled: true,
-                                    fillColor: Colors.grey[100],
+                                    hintStyle: TextStyle(color: Colors.white60),
+                                    border: InputBorder.none,
                                   ),
-                                  onSubmitted: (_) => _addPlayer(),
+                                  onSubmitted: _addPlayer,
                                 ),
                               ),
-                              const SizedBox(width: 10),
                               IconButton(
-                                icon: const Icon(Icons.add_circle),
-                                onPressed: _addPlayer,
-                                color: Colors.white,
-                                iconSize: 32,
+                                icon: const Icon(
+                                  Icons.add_circle,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () {
+                                  _addPlayer(_controller.text);
+                                },
                               ),
                             ],
                           ),
-                          const SizedBox(height: 20),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: players.asMap().entries.map((entry) {
-                              return Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 1.5,
-                                  ),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      entry.value,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    InkWell(
-                                      onTap: () => _removePlayer(entry.key),
-                                      child: const Icon(
-                                        Icons.close,
-                                        size: 16,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
+                        ),
+                        
+                        // Drink mode toggle
+                        SwitchListTile(
+                          title: const Text(
+                            'Quick Drink Mode',
+                            style: TextStyle(color: Colors.white),
                           ),
-                          const SizedBox(height: 20),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withAlpha(30),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Quick Drink Mode',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Switch(
-                                  value: _quickDrinkMode,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _quickDrinkMode = value;
-                                    });
-                                  },
-                                  activeColor: const Color(0xFF7B1FA2),
-                                  activeTrackColor: Colors.white.withAlpha(100),
-                                  inactiveThumbColor: Colors.white,
-                                  inactiveTrackColor: Colors.white.withAlpha(50),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Random 3-second drink alerts during the game',
+                          subtitle: const Text(
+                            'Drink alerts during gameplay',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.white.withAlpha(180),
+                              color: Colors.white70,
                             ),
-                            textAlign: TextAlign.center,
                           ),
-                        ],
-                      ),
-                    ),
-                    const Spacer(),
-                    AnimatedBuilder(
-                      animation: _shakeAnimation,
-                      builder: (context, child) {
-                        return Transform.translate(
-                          offset: Offset(_shakeAnimation.value, 0),
-                          child: child,
-                        );
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.only(bottom: 30),
-                        child: ElevatedButton(
-                          onPressed: _startGame,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1A237E),
-                            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            elevation: 5,
-                          ),
-                          child: const Text(
-                            "Let's Play!",
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          value: _quickDrinkMode,
+                          activeColor: Colors.redAccent,
+                          contentPadding: EdgeInsets.zero,
+                          onChanged: (value) {
+                            setState(() {
+                              _quickDrinkMode = value;
+                            });
+                          },
+                        ),
+                        
+                        // Let's Play button - centered
+                        Center(
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 30),
+                            child: ElevatedButton(
+                              onPressed: _startGame,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF1A237E),
+                                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                elevation: 5,
+                              ),
+                              child: const Text(
+                                "Let's Play!",
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
           // Red overlay with warning message
@@ -376,38 +408,40 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
               builder: (context, child) {
                 return Transform.translate(
                   offset: Offset(_shakeAnimation.value, 0),
-                  child: Container(
-                    color: Colors.red.withAlpha(77),
-                    child: const Center(
-                      child: Text(
-                        'ADD AT LEAST\n2 PLAYERS!',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          height: 1.2,
-                          shadows: [
-                            Shadow(
-                              color: Colors.red,
-                              blurRadius: 10,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+                  child: child,
                 );
               },
+              child: Container(
+                color: Colors.red.withAlpha(77),
+                child: const Center(
+                  child: Text(
+                    'ADD AT LEAST\n2 PLAYERS!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2,
+                      shadows: [
+                        Shadow(
+                          color: Colors.red,
+                          blurRadius: 10,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
         ],
       ),
       bottomNavigationBar: Container(
         color: const Color(0xFF1A237E),
-        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
+        padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 20), // Even thinner vertical padding
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Changed to space between for share button
           children: [
+            // Copyright text
             TextButton(
               onPressed: () {
                 showDialog(
@@ -462,10 +496,29 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                 );
               },
               child: const Text(
-                '© 2025 True Node Limited',
+                '© 2025 True Node',
                 style: TextStyle(
                   color: Colors.white70,
-                  fontSize: 10,
+                  fontSize: 8, // Even smaller text
+                ),
+              ),
+            ),
+            
+            // Share button
+            TextButton.icon(
+              onPressed: () {
+                // Share the app with friends
+                Share.share(
+                  'Check out DrunkHub - the ultimate social drinking game app! https://truenode.com/drunkhub',
+                  subject: 'DrunkHub - Social Drinking Game',
+                );
+              },
+              icon: const Icon(Icons.share, size: 14, color: Colors.white70),
+              label: const Text(
+                'Share with friends',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 8, // Small text
                 ),
               ),
             ),
