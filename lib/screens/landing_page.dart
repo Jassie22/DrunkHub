@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'game_mode_selection_page.dart';
 import '../utils/app_assets.dart';
 
@@ -405,7 +404,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
       ),
       bottomNavigationBar: Container(
         color: const Color(0xFF1A237E),
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 20),
+        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -418,15 +417,15 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                       title: Row(
                         children: [
                           AppAssets.getAppIconSvg(
-                            width: 24,
-                            height: 24,
+                            width: 18,
+                            height: 18,
                             color: const Color(0xFF1A237E),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 6),
                           const Text(
                             'Legal Information',
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -466,7 +465,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                 '© 2025 True Node Limited',
                 style: TextStyle(
                   color: Colors.white70,
-                  fontSize: 12,
+                  fontSize: 10,
                 ),
               ),
             ),

@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:io';
-import '../utils/app_assets.dart';
 
 class GameEndScreen extends StatefulWidget {
   final List<String> players;
@@ -26,9 +25,10 @@ class GameEndScreen extends StatefulWidget {
 }
 
 class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProviderStateMixin {
-  late ConfettiController _confettiController;
-  late ConfettiController _confettiControllerLeft;
-  late ConfettiController _confettiControllerRight;
+  // Use nullable types for confetti controllers to handle potential initialization failures
+  ConfettiController? _confettiController;
+  ConfettiController? _confettiControllerLeft;
+  ConfettiController? _confettiControllerRight;
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
   late AnimationController _pulseController;
@@ -36,6 +36,7 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
   File? _groupPhoto;
   bool _isLoading = false;
   bool _isInitialized = false;
+  bool _confettiEnabled = true; // Flag to disable confetti if initialization fails
   
   // List of Gen Z-themed end screens
   final List<Map<String, dynamic>> _endScreens = [
@@ -162,17 +163,9 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
       
       // Start pulse animation and repeat
       _pulseController.repeat();
-
-      // Initialize confetti controllers with shorter duration and try-catch for safety
-      try {
-        _confettiController = ConfettiController(duration: const Duration(seconds: 1));
-        _confettiControllerLeft = ConfettiController(duration: const Duration(seconds: 1));
-        _confettiControllerRight = ConfettiController(duration: const Duration(seconds: 1));
-      } catch (e) {
-        debugPrint('Error initializing confetti controllers: $e');
-        // Create a fallback state even if confetti fails
-        _isInitialized = true;
-      }
+      
+      // Initialize confetti controllers with shorter duration and try-catch
+      _initializeConfetti();
 
       // Start animations with delays
       Future.delayed(const Duration(milliseconds: 300), () {
@@ -181,7 +174,7 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
         }
       });
 
-      // Try to play confetti with error handling
+      // Try to play confetti with error handling after a delay
       Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) {
           _startConfetti();
@@ -191,30 +184,47 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
       debugPrint('Error initializing end screen: $e');
       setState(() {
         _isInitialized = true;
+        _confettiEnabled = false; // Disable confetti on general initialization error
       });
+    }
+  }
+
+  // Extracted method to initialize confetti in a controlled way
+  void _initializeConfetti() {
+    try {
+      _confettiController = ConfettiController(duration: const Duration(milliseconds: 500));
+      _confettiControllerLeft = ConfettiController(duration: const Duration(milliseconds: 500));
+      _confettiControllerRight = ConfettiController(duration: const Duration(milliseconds: 500));
+    } catch (e) {
+      debugPrint('Error initializing confetti controllers: $e');
+      // Mark as initialized but disable confetti
+      _confettiEnabled = false;
+      _isInitialized = true;
     }
   }
 
   // Extracted method to better handle confetti errors
   void _startConfetti() {
+    if (!_confettiEnabled) {
+      // If confetti is disabled, still mark as initialized
+      setState(() {
+        _isInitialized = true;
+      });
+      return;
+    }
+
     try {
-      // Try to play each controller separately with catch blocks
-      try {
-        _confettiController.play();
-      } catch (e) {
-        debugPrint('Error playing center confetti: $e');
+      // Only play confetti if controllers are properly initialized
+      if (_confettiController != null) {
+        _confettiController!.play();
       }
       
-      try {
-        _confettiControllerLeft.play();
-      } catch (e) {
-        debugPrint('Error playing left confetti: $e');
+      if (_confettiControllerLeft != null) {
+        _confettiControllerLeft!.play();
       }
       
-      try {
-        _confettiControllerRight.play();
-      } catch (e) {
-        debugPrint('Error playing right confetti: $e');
+      if (_confettiControllerRight != null) {
+        _confettiControllerRight!.play();
       }
       
       // Set initialized to true after confetti attempts
@@ -440,14 +450,14 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
     return WillPopScope(
       onWillPop: () async {
         try {
-          if (_confettiController.state == ConfettiControllerState.playing) {
-            _confettiController.stop();
+          if (_confettiController?.state == ConfettiControllerState.playing) {
+            _confettiController?.stop();
           }
-          if (_confettiControllerLeft.state == ConfettiControllerState.playing) {
-            _confettiControllerLeft.stop();
+          if (_confettiControllerLeft?.state == ConfettiControllerState.playing) {
+            _confettiControllerLeft?.stop();
           }
-          if (_confettiControllerRight.state == ConfettiControllerState.playing) {
-            _confettiControllerRight.stop();
+          if (_confettiControllerRight?.state == ConfettiControllerState.playing) {
+            _confettiControllerRight?.stop();
           }
         } catch (e) {
           debugPrint("Error stopping confetti: $e");
@@ -475,37 +485,28 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
       }
       _pulseController.dispose();
       
-      // Dispose confetti with individual try-catch blocks
-      try {
-        if (_confettiController.state == ConfettiControllerState.playing) {
-          _confettiController.stop();
-        }
-        _confettiController.dispose();
-      } catch (e) {
-        debugPrint("Error disposing center confetti: $e");
-      }
-      
-      try {
-        if (_confettiControllerLeft.state == ConfettiControllerState.playing) {
-          _confettiControllerLeft.stop();
-        }
-        _confettiControllerLeft.dispose();
-      } catch (e) {
-        debugPrint("Error disposing left confetti: $e");
-      }
-      
-      try {
-        if (_confettiControllerRight.state == ConfettiControllerState.playing) {
-          _confettiControllerRight.stop();
-        }
-        _confettiControllerRight.dispose();
-      } catch (e) {
-        debugPrint("Error disposing right confetti: $e");
-      }
+      // Dispose confetti controllers safely
+      _disposeConfetti(_confettiController, "center");
+      _disposeConfetti(_confettiControllerLeft, "left");
+      _disposeConfetti(_confettiControllerRight, "right");
     } catch (e) {
       debugPrint("Error disposing controllers: $e");
     }
     super.dispose();
+  }
+
+  // Helper method to safely dispose a confetti controller
+  void _disposeConfetti(ConfettiController? controller, String name) {
+    if (controller != null) {
+      try {
+        if (controller.state == ConfettiControllerState.playing) {
+          controller.stop();
+        }
+        controller.dispose();
+      } catch (e) {
+        debugPrint("Error disposing $name confetti: $e");
+      }
+    }
   }
 
   // Create floating bubbles for the core memory theme
@@ -633,8 +634,9 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
 
   // Center confetti widget with optimized parameters
   Widget _buildConfetti() {
-    // Safety check - if any controllers are null, return empty container
-    if (_confettiController == null || 
+    // If confetti is disabled or any controller is null, return empty container
+    if (!_confettiEnabled || 
+        _confettiController == null || 
         _confettiControllerLeft == null || 
         _confettiControllerRight == null) {
       return Container();
@@ -646,21 +648,20 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
         Align(
           alignment: Alignment.topCenter,
           child: ConfettiWidget(
-            confettiController: _confettiController,
+            confettiController: _confettiController!,
             blastDirectionality: BlastDirectionality.explosive,
-            maxBlastForce: 3, // Reduced force further
+            maxBlastForce: 2, // Further reduced force
             minBlastForce: 1,
-            emissionFrequency: 0.01, // Very low frequency
-            numberOfParticles: 5, // Even fewer particles
-            gravity: 0.2,
+            emissionFrequency: 0.005, // Minimal frequency
+            numberOfParticles: 3, // Even fewer particles
+            gravity: 0.1, // Lower gravity
             shouldLoop: false,
             colors: [
               Colors.white, 
               _endScreen['color'] as Color,
-              (_endScreen['color'] as Color).withOpacity(0.7),
             ],
-            maximumSize: const Size(8, 4), // Small particles
-            minimumSize: const Size(4, 2),
+            maximumSize: const Size(6, 3), // Smaller particles
+            minimumSize: const Size(3, 2),
             child: const SizedBox(),
           ),
         ),
@@ -669,20 +670,20 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
         Align(
           alignment: Alignment.topLeft,
           child: ConfettiWidget(
-            confettiController: _confettiControllerLeft,
+            confettiController: _confettiControllerLeft!,
             blastDirection: pi / 4, // 45 degrees
-            emissionFrequency: 0.005, // Minimal frequency
-            numberOfParticles: 3, // Very few particles
-            maxBlastForce: 2, // Minimal force
-            minBlastForce: 1,
-            gravity: 0.2,
+            emissionFrequency: 0.003, // Minimal frequency
+            numberOfParticles: 2, // Minimal particles
+            maxBlastForce: 1, // Minimal force
+            minBlastForce: 0.5,
+            gravity: 0.1, // Lower gravity
             shouldLoop: false,
             colors: [
               Colors.white, 
               _endScreen['color'] as Color,
             ],
-            maximumSize: const Size(8, 4), // Small particles
-            minimumSize: const Size(4, 2),
+            maximumSize: const Size(6, 3), // Smaller particles
+            minimumSize: const Size(3, 2),
             child: const SizedBox(),
           ),
         ),
@@ -691,20 +692,20 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
         Align(
           alignment: Alignment.topRight,
           child: ConfettiWidget(
-            confettiController: _confettiControllerRight,
+            confettiController: _confettiControllerRight!,
             blastDirection: 3 * pi / 4, // 135 degrees
-            emissionFrequency: 0.005, // Minimal frequency
-            numberOfParticles: 3, // Very few particles
-            maxBlastForce: 2, // Minimal force
-            minBlastForce: 1,
-            gravity: 0.2,
+            emissionFrequency: 0.003, // Minimal frequency
+            numberOfParticles: 2, // Minimal particles
+            maxBlastForce: 1, // Minimal force
+            minBlastForce: 0.5,
+            gravity: 0.1, // Lower gravity
             shouldLoop: false,
             colors: [
               Colors.white, 
               _endScreen['color'] as Color,
             ],
-            maximumSize: const Size(8, 4), // Small particles
-            minimumSize: const Size(4, 2),
+            maximumSize: const Size(6, 3), // Smaller particles
+            minimumSize: const Size(3, 2),
             child: const SizedBox(),
           ),
         ),
