@@ -382,6 +382,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           builder: (context) => GameEndScreen(
             players: widget.players,
             onPlayAgain: () {
+              // Completely rebuild the game screen with a fresh state
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
                   builder: (context) => GameScreen(
