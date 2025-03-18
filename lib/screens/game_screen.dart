@@ -393,9 +393,21 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
               );
             },
             onNewGame: () {
+              // Pop this end screen first, then rebuild the game screen with new state
               Navigator.of(context).pop();
+              // Rebuild the game with new players, clearing all indexes
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => GameScreen(
+                    players: widget.players,
+                    selectedModes: widget.selectedModes,
+                    quickDrinkMode: widget.quickDrinkMode,
+                  ),
+                ),
+              );
             },
             onHome: () {
+              // Home navigation now handled directly in GameEndScreen
               Navigator.of(context).pop();
             },
           ),

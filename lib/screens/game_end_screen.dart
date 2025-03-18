@@ -97,14 +97,17 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
     try {
       _fadeController = AnimationController(
         vsync: this,
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 800), // Increased for more subtle fade
       );
-      _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_fadeController);
+      _fadeAnimation = CurvedAnimation(
+        parent: _fadeController,
+        curve: Curves.easeInOut, // Smoother curve for more subtle fade
+      );
 
       // Initialize confetti controllers with shorter duration
-      _confettiController = ConfettiController(duration: const Duration(seconds: 3));
-      _confettiControllerLeft = ConfettiController(duration: const Duration(seconds: 3));
-      _confettiControllerRight = ConfettiController(duration: const Duration(seconds: 3));
+      _confettiController = ConfettiController(duration: const Duration(seconds: 2));
+      _confettiControllerLeft = ConfettiController(duration: const Duration(seconds: 2));
+      _confettiControllerRight = ConfettiController(duration: const Duration(seconds: 2));
 
       // Start animations with delays
       Future.delayed(const Duration(milliseconds: 300), () {
@@ -134,14 +137,9 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
         }
       });
     } catch (e) {
-      debugPrint('Error initializing game end screen: $e');
-      // Set initialized to true even on error
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (mounted) {
-          setState(() {
-            _isInitialized = true;
-          });
-        }
+      debugPrint('Error initializing end screen: $e');
+      setState(() {
+        _isInitialized = true;
       });
     }
   }
@@ -244,69 +242,8 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
           ..._buildChaosElements(),
         
         // Confetti - multiple sources with theme colors
-        Align(
-          alignment: Alignment.topCenter,
-          child: ConfettiWidget(
-            confettiController: _confettiController,
-            blastDirectionality: BlastDirectionality.explosive,
-            maxBlastForce: 7,
-            minBlastForce: 3,
-            emissionFrequency: 0.03,
-            numberOfParticles: 10,
-            gravity: 0.2,
-            shouldLoop: false,
-            colors: [
-              Colors.white, 
-              _endScreen['color'] as Color,
-              (_endScreen['color'] as Color).withOpacity(0.7),
-              Colors.amber,
-            ],
-            child: const SizedBox(),
-          ),
-        ),
+        _buildConfetti(),
         
-        // Left side confetti
-        Align(
-          alignment: Alignment.topLeft,
-          child: ConfettiWidget(
-            confettiController: _confettiControllerLeft,
-            blastDirection: pi / 4, // 45 degrees
-            emissionFrequency: 0.02,
-            numberOfParticles: 5,
-            maxBlastForce: 6,
-            minBlastForce: 3,
-            gravity: 0.2,
-            shouldLoop: false,
-            colors: [
-              Colors.white, 
-              _endScreen['color'] as Color,
-              Colors.blue,
-            ],
-            child: const SizedBox(),
-          ),
-        ),
-        
-        // Right side confetti
-        Align(
-          alignment: Alignment.topRight,
-          child: ConfettiWidget(
-            confettiController: _confettiControllerRight,
-            blastDirection: 3 * pi / 4, // 135 degrees
-            emissionFrequency: 0.02,
-            numberOfParticles: 5,
-            maxBlastForce: 6,
-            minBlastForce: 3,
-            gravity: 0.2,
-            shouldLoop: false,
-            colors: [
-              Colors.white, 
-              _endScreen['color'] as Color,
-              Colors.orange,
-            ],
-            child: const SizedBox(),
-          ),
-        ),
-
         // Content
         SafeArea(
           child: Center(
@@ -582,6 +519,77 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
     return elements;
   }
 
+  // Center confetti widget with optimized parameters
+  Widget _buildConfetti() {
+    return Stack(
+      children: [
+        // Center confetti
+        Align(
+          alignment: Alignment.topCenter,
+          child: ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            maxBlastForce: 5, // Reduced force
+            minBlastForce: 2,
+            emissionFrequency: 0.02, // Reduced frequency
+            numberOfParticles: 8, // Reduced particles
+            gravity: 0.2,
+            shouldLoop: false,
+            colors: [
+              Colors.white, 
+              _endScreen['color'] as Color,
+              (_endScreen['color'] as Color).withOpacity(0.7),
+              Colors.amber,
+            ],
+            child: const SizedBox(),
+          ),
+        ),
+        
+        // Left side confetti
+        Align(
+          alignment: Alignment.topLeft,
+          child: ConfettiWidget(
+            confettiController: _confettiControllerLeft,
+            blastDirection: pi / 4, // 45 degrees
+            emissionFrequency: 0.01, // Reduced frequency
+            numberOfParticles: 4, // Reduced particles
+            maxBlastForce: 4, // Reduced force
+            minBlastForce: 2,
+            gravity: 0.2,
+            shouldLoop: false,
+            colors: [
+              Colors.white, 
+              _endScreen['color'] as Color,
+              Colors.blue,
+            ],
+            child: const SizedBox(),
+          ),
+        ),
+        
+        // Right side confetti
+        Align(
+          alignment: Alignment.topRight,
+          child: ConfettiWidget(
+            confettiController: _confettiControllerRight,
+            blastDirection: 3 * pi / 4, // 135 degrees
+            emissionFrequency: 0.01, // Reduced frequency
+            numberOfParticles: 4, // Reduced particles
+            maxBlastForce: 4, // Reduced force
+            minBlastForce: 2,
+            gravity: 0.2,
+            shouldLoop: false,
+            colors: [
+              Colors.white, 
+              _endScreen['color'] as Color,
+              Colors.green,
+            ],
+            child: const SizedBox(),
+          ),
+        ),
+      ],
+    );
+  }
+
   // Build player names section
   Widget _buildPlayerNames() {
     return FadeTransition(
@@ -823,7 +831,10 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
               ),
               const SizedBox(width: 16),
               TextButton(
-                onPressed: widget.onHome,
+                onPressed: () {
+                  // Navigate all the way back to the landing page
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
                 child: const Text(
                   'Home',
                   style: TextStyle(
