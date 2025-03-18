@@ -299,7 +299,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  'Surprise Shot Mode',
+                                  'Sudden Drink Mode',
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.white,

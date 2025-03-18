@@ -37,7 +37,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   List<int> _drinkPromptIndices = []; // Store multiple indices for drink prompts
   bool _showQuickDrink = false;
   bool _drinkModeAlreadyTriggered = false; // Track if drink mode has already been triggered
-  int _quickDrinkCountdown = 3;
+  int _quickDrinkCountdown = 5;
   Timer? _quickDrinkTimer;
   
   // Audio player for sound effects
@@ -130,26 +130,36 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       // Reset drink mode trigger state
       _drinkModeAlreadyTriggered = false;
       
-      // Choose random prompts to activate drink mode (excluding the first prompt)
+      // Choose random prompts to activate drink mode (excluding the first quarter of prompts and the last prompt)
       if (_prompts.length > 1 && widget.quickDrinkMode) {
         _drinkPromptIndices = [];
-        // Determine how many drink prompts to show based on total prompts
-        int drinkCount = min(3, (_prompts.length / 2).ceil());
         
-        // Create a list of available indices (excluding 0)
-        List<int> availableIndices = List.generate(_prompts.length - 1, (i) => i + 1);
-        availableIndices.shuffle();
+        // Determine the range for possible drink prompts (first quarter to second-to-last card)
+        int startIndex = (_prompts.length * 0.25).ceil(); // Start after first quarter
+        int endIndex = _prompts.length - 2; // End before the last card
         
-        // Select random indices
-        for (int i = 0; i < drinkCount; i++) {
-          if (availableIndices.isNotEmpty) {
-            _drinkPromptIndices.add(availableIndices.removeAt(0));
+        // Make sure we have a valid range
+        if (startIndex <= endIndex) {
+          // Determine how many drink prompts to show based on total prompts
+          int drinkCount = min(2, (endIndex - startIndex + 1));
+          
+          // Create a list of available indices (within our valid range)
+          List<int> availableIndices = List.generate(endIndex - startIndex + 1, (i) => i + startIndex);
+          availableIndices.shuffle();
+          
+          // Select random indices
+          for (int i = 0; i < drinkCount; i++) {
+            if (availableIndices.isNotEmpty) {
+              _drinkPromptIndices.add(availableIndices.removeAt(0));
+            }
           }
+          
+          // Sort them so we can check in order
+          _drinkPromptIndices.sort();
+          debugPrint('Sudden drink will appear at indices: $_drinkPromptIndices');
+        } else {
+          debugPrint('Not enough cards to place sudden drink prompts');
         }
-        
-        // Sort them so we can check in order
-        _drinkPromptIndices.sort();
-        debugPrint('Drink prompts will appear at indices: $_drinkPromptIndices');
       } else {
         _drinkPromptIndices = [];
       }
@@ -204,7 +214,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     
     setState(() {
       _showQuickDrink = true;
-      _quickDrinkCountdown = 3;
+      _quickDrinkCountdown = 5; // Increased from 3 to 5 seconds
     });
     
     // Start countdown timer
@@ -220,22 +230,41 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
           SystemSound.play(SystemSoundType.click);
         }
       } else {
-        _quickDrinkTimer?.cancel();
-        HapticFeedback.heavyImpact();
-        
-        // Stop shaking
-        _rattleController.stop();
-        _rattleController.reset();
-        
-        // Hide the overlay after a short delay
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) {
-            setState(() {
-              _showQuickDrink = false;
-            });
-          }
+        _endQuickDrink();
+      }
+    });
+  }
+  
+  // New method to handle ending the quick drink alert
+  void _endQuickDrink() {
+    _quickDrinkTimer?.cancel();
+    HapticFeedback.heavyImpact();
+    
+    // Stop shaking
+    _rattleController.stop();
+    _rattleController.reset();
+    
+    // Hide the overlay after a short delay
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        setState(() {
+          _showQuickDrink = false;
         });
       }
+    });
+  }
+  
+  // Skip the quick drink
+  void _skipQuickDrink() {
+    _quickDrinkTimer?.cancel();
+    
+    // Stop shaking
+    _rattleController.stop();
+    _rattleController.reset();
+    
+    // Hide the overlay immediately
+    setState(() {
+      _showQuickDrink = false;
     });
   }
 
@@ -568,7 +597,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                   end: Alignment.bottomCenter,
                                 ).createShader(bounds),
                                 child: const Text(
-                                  'SHOT TIME!',
+                                  'SUDDEN DRINK!',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 50, 
@@ -607,6 +636,26 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                     color: Colors.red.shade900,
                                     fontSize: 100,
                                     fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              // Skip button
+                              TextButton(
+                                onPressed: _skipQuickDrink,
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors.white.withOpacity(0.2),
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'SKIP',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),

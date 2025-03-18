@@ -35,6 +35,7 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
   
   // List of Gen Z-themed end screens
   final List<Map<String, dynamic>> _endScreens = [
+    // Free end screens (4)
     {
       'id': 'main_character',
       'title': 'Main Character Energy',
@@ -42,6 +43,7 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
       'icon': '✨',
       'color': Colors.pink,
       'photoMessage': 'Take a pic for the TL!',
+      'isPremium': false,
     },
     {
       'id': 'vibe_check',
@@ -50,6 +52,7 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
       'icon': '🔥',
       'color': Colors.orange,
       'photoMessage': 'Pics or it didn\'t happen!',
+      'isPremium': false,
     },
     {
       'id': 'unhinged',
@@ -58,6 +61,7 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
       'icon': '🤪',
       'color': Colors.purple,
       'photoMessage': 'Document this fever dream!',
+      'isPremium': false,
     },
     {
       'id': 'core_memory',
@@ -66,7 +70,10 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
       'icon': '🧠',
       'color': Colors.teal,
       'photoMessage': 'Photo dump material right here!',
+      'isPremium': false,
     },
+    
+    // Premium end screens (7)
     {
       'id': 'glitch',
       'title': 'Simulation Glitch',
@@ -74,8 +81,8 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
       'icon': '👾',
       'color': Colors.deepPurple,
       'photoMessage': 'Save proof before they patch this bug!',
+      'isPremium': true,
     },
-    // Adding 3 more Gen Z themed end screens
     {
       'id': 'slay',
       'title': 'Absolutely Slayed',
@@ -83,6 +90,7 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
       'icon': '💅',
       'color': Colors.red.shade700,
       'photoMessage': 'Capture the slay!',
+      'isPremium': true,
     },
     {
       'id': 'rizz',
@@ -91,6 +99,7 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
       'icon': '😏',
       'color': Colors.blue.shade600,
       'photoMessage': 'Immortalize the rizz!',
+      'isPremium': true,
     },
     {
       'id': 'based',
@@ -99,8 +108,40 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
       'icon': '💯',
       'color': Colors.green.shade800,
       'photoMessage': 'Snap this W!',
+      'isPremium': true,
+    },
+    // New premium end screens to reach a total of 7
+    {
+      'id': 'iconic',
+      'title': 'Iconic Moment',
+      'subtitle': 'This is the moment everyone will reference for years',
+      'icon': '👑',
+      'color': Colors.amber.shade700,
+      'photoMessage': 'Capture this historic moment!',
+      'isPremium': true,
+    },
+    {
+      'id': 'cursed',
+      'title': 'Cursed Timeline',
+      'subtitle': 'The collective chaos has altered reality. Welcome to the dark timeline.',
+      'icon': '🌚',
+      'color': Colors.indigo.shade900,
+      'photoMessage': 'Document the evidence!',
+      'isPremium': true,
+    },
+    {
+      'id': 'plot_twist',
+      'title': 'Ultimate Plot Twist',
+      'subtitle': 'Nobody saw this coming. Not even the writers.',
+      'icon': '🔄',
+      'color': Colors.cyan.shade700,
+      'photoMessage': 'Capture the twist!',
+      'isPremium': true,
     },
   ];
+  
+  // Premium status (should be passed in from game screen in a real app)
+  bool _isPremiumUser = false;
   
   // Selected end screen
   late Map<String, dynamic> _endScreen;
@@ -113,8 +154,14 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
     setState(() {
       _isInitialized = false;
       
-      // Randomly select an end screen
-      _endScreen = _endScreens[Random().nextInt(_endScreens.length)];
+      // Check premium status (this would be passed from the parent in a real app)
+      _loadPremiumStatus();
+      
+      // Filter screens based on premium status
+      final availableScreens = _getAvailableEndScreens();
+      
+      // Randomly select an end screen from available ones
+      _endScreen = availableScreens[Random().nextInt(availableScreens.length)];
     });
     
     try {
@@ -925,6 +972,31 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
     }
     
     return elements;
+  }
+
+  // Method to load premium status
+  Future<void> _loadPremiumStatus() async {
+    try {
+      // This is a placeholder - in a real app, this would get the status from a service
+      // For demo purposes, we'll hardcode it to false to show free finale experiences
+      _isPremiumUser = false;
+      
+      // In a real app, you'd use a service like this:
+      // final purchaseService = PurchaseService();
+      // _isPremiumUser = purchaseService.isPremium;
+    } catch (e) {
+      debugPrint('Error loading premium status: $e');
+    }
+  }
+  
+  // Filter end screens based on premium status
+  List<Map<String, dynamic>> _getAvailableEndScreens() {
+    if (_isPremiumUser) {
+      return _endScreens; // All screens available
+    } else {
+      // Only non-premium screens
+      return _endScreens.where((screen) => screen['isPremium'] == false).toList();
+    }
   }
 }
 

@@ -94,6 +94,23 @@ class PurchaseService extends ChangeNotifier {
     }
   }
   
+  // Purchase weekly subscription
+  Future<void> purchaseWeekly() async {
+    _setLoading(true);
+    
+    try {
+      // Simulate a short delay
+      await Future.delayed(const Duration(milliseconds: 500));
+      // In a real app, this would connect to the payment system
+      // For now, we'll throw an exception to indicate payment is required
+      _setLoading(false);
+      throw Exception('This is a demo app. In a real app, this would connect to the payment system.');
+    } catch (e) {
+      _setLoading(false);
+      rethrow;
+    }
+  }
+  
   // Purchase lifetime access
   Future<void> purchaseLifetime() async {
     _setLoading(true);

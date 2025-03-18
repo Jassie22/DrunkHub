@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:ui';
 import '../models/game_package.dart';
 import '../services/purchase_service.dart';
 import 'game_screen.dart';
@@ -63,17 +64,107 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'Unlock all premium drinking games and challenges!',
+                'Unlock all premium content!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
                 ),
               ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF1A237E), Color(0xFF7B1FA2)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.star, color: Colors.amber, size: 18),
+                        SizedBox(width: 6),
+                        Text(
+                          'Premium Includes:',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    _buildPremiumFeature('9 Premium Game Bundles'),
+                    _buildPremiumFeature('7 Epic Finale Experiences'),
+                    _buildPremiumFeature('No Ads or Restrictions'),
+                    _buildPremiumFeature('Regular New Content'),
+                  ],
+                ),
+              ),
               const SizedBox(height: 20),
+              // Weekly subscription
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1A237E),
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  // Show loading indicator
+                  _showLoadingDialog();
+                  try {
+                    await _purchaseService.purchaseWeekly();
+                    if (mounted) Navigator.of(context).pop(); // Dismiss loading
+                  } catch (e) {
+                    if (mounted) Navigator.of(context).pop(); // Dismiss loading
+                    _showErrorDialog('Payment Required', 
+                      'This is a demo app. In a real app, this would connect to the payment system.');
+                  }
+                },
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    const Text(
+                      'Weekly Subscription - \$2.99',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Positioned(
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Text(
+                          '3-DAY FREE',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Lifetime access
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF7B1FA2),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -92,18 +183,19 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                   }
                 },
                 child: const Text(
-                  'Unlock Premium',
+                  'Lifetime Access - \$9.99',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
+              // Redemption code
               OutlinedButton(
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -111,10 +203,10 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  _showAccessCodeDialog();
+                  _showRedemptionCodeDialog();
                 },
                 child: const Text(
-                  'Enter Access Code',
+                  'Redeem Access Code',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -122,12 +214,12 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               if (kDebugMode) // Only show in debug mode
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -167,7 +259,7 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                     ),
                   ),
                 ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: const Text('Maybe Later'),
@@ -178,6 +270,151 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
+        );
+      },
+    );
+  }
+
+  // Helper widget for premium features
+  Widget _buildPremiumFeature(String feature) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle_outline, color: Colors.white, size: 16),
+          const SizedBox(width: 6),
+          Text(
+            feature,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showRedemptionCodeDialog() {
+    final TextEditingController codeController = TextEditingController();
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Row(
+                children: [
+                  Icon(Icons.card_giftcard, color: Colors.purple, size: 30),
+                  SizedBox(width: 10),
+                  Text('Redeem Access Code',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Enter your one-time access code to unlock 1 year of premium features!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: codeController,
+                    decoration: InputDecoration(
+                      labelText: 'Access Code',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      prefixIcon: const Icon(Icons.vpn_key),
+                      hintText: 'Example: DRUNK-HUB-2025',
+                    ),
+                    textAlign: TextAlign.center,
+                    textCapitalization: TextCapitalization.characters,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'This code can be redeemed only once.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.red,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1A237E),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  onPressed: isLoading ? null : () async {
+                    if (codeController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please enter a valid code'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+                    
+                    setState(() {
+                      isLoading = true;
+                    });
+                    
+                    // Simulate API call to validate code
+                    await Future.delayed(const Duration(seconds: 1));
+                    
+                    if (mounted) {
+                      setState(() {
+                        isLoading = false;
+                      });
+                      
+                      // For demo purposes, accept any code
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('This is a demo. In a real app, this would validate your code.'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
+                  },
+                  child: isLoading 
+                    ? const SizedBox(
+                        width: 20, 
+                        height: 20, 
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'Redeem',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                ),
+              ],
+            );
+          }
         );
       },
     );
@@ -220,131 +457,6 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
     );
   }
 
-  void _showAccessCodeDialog() {
-    final TextEditingController codeController = TextEditingController();
-    bool isSubmitting = false;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Row(
-                children: [
-                  Icon(Icons.vpn_key, color: Colors.amber, size: 24),
-                  SizedBox(width: 10),
-                  Text('Enter Access Code',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: codeController,
-                    decoration: const InputDecoration(
-                      hintText: 'Enter your access code',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    obscureText: true,
-                    maxLength: 6,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      letterSpacing: 8,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1A237E),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      onPressed: isSubmitting 
-                        ? null 
-                        : () async {
-                          if (codeController.text.trim() == '060125') {
-                            setState(() {
-                              isSubmitting = true;
-                            });
-                            
-                            // Debug print before toggling
-                            debugPrint('Before toggle: isPremium = ${_purchaseService.isPremium}');
-                            
-                            // Show success and grant premium
-                            await _purchaseService.togglePremiumForTesting();
-                            
-                            // Debug print after toggling
-                            debugPrint('After toggle: isPremium = ${_purchaseService.isPremium}');
-                            
-                            // Force update the UI state
-                            this.setState(() {
-                              isPremiumUser = _purchaseService.isPremium;
-                            });
-                            
-                            if (mounted) {
-                              Navigator.of(context).pop();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Premium access ${isPremiumUser ? "granted" : "removed"}!'),
-                                  backgroundColor: isPremiumUser ? Colors.green : Colors.red,
-                                ),
-                              );
-                            }
-                          } else {
-                            // Show error for invalid code
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Invalid access code'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        },
-                      child: isSubmitting
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Text(
-                            'Submit',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
-                ),
-              ],
-            );
-          }
-        );
-      },
-    );
-  }
-
   Widget _buildGameModeCard(GameMode mode) {
     final bool isSelected = selectedModes.contains(mode);
     final bool isLocked = mode.isPremium && !isPremiumUser;
@@ -368,17 +480,30 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF1A237E).withAlpha(26) : Colors.white,
+          gradient: isSelected 
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFF1A237E).withOpacity(0.5),
+                  const Color(0xFF7B1FA2).withOpacity(0.5),
+                ],
+              )
+            : null,
+          color: isSelected ? null : Colors.white,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
             color: isSelected ? const Color(0xFF1A237E) : Colors.grey.shade300,
-            width: 2,
+            width: isSelected ? 2 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(13),
+              color: isSelected 
+                ? const Color(0xFF1A237E).withOpacity(0.2)
+                : Colors.black.withAlpha(13),
               blurRadius: 10,
-              spreadRadius: 0,
+              spreadRadius: isSelected ? 2 : 0,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
@@ -388,9 +513,23 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  Text(
-                    mode.icon,
-                    style: const TextStyle(fontSize: 24),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.white : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: isSelected ? [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 4,
+                          spreadRadius: 0,
+                        ),
+                      ] : null,
+                    ),
+                    child: Text(
+                      mode.icon,
+                      style: const TextStyle(fontSize: 24),
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -401,9 +540,10 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                           children: [
                             Text(
                               mode.name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
+                                color: isSelected ? Colors.white : Colors.black87,
                               ),
                             ),
                             if (mode.isPremium) ...[
@@ -421,53 +561,88 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                           mode.description,
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey[600],
+                            color: isSelected ? Colors.white.withOpacity(0.8) : Colors.grey[600],
                           ),
                         ),
                       ],
                     ),
                   ),
                   if (isSelected)
-                    const Icon(
-                      Icons.check_circle,
-                      color: Color(0xFF1A237E),
-                      size: 24,
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                            spreadRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.check_circle,
+                        color: Color(0xFF1A237E),
+                        size: 24,
+                      ),
                     ),
                 ],
               ),
             ),
             if (isLocked)
               Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withAlpha(77),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.lock,
-                          color: Colors.white,
-                          size: 32,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Premium',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            shadows: [
-                              Shadow(
-                                blurRadius: 4,
-                                color: Colors.black.withAlpha(128),
-                                offset: const Offset(1, 1),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                shape: BoxShape.circle,
                               ),
-                            ],
-                          ),
+                              child: const Icon(
+                                Icons.lock,
+                                color: Colors.white,
+                                size: 32,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.purple.withOpacity(0.7),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text(
+                                'Premium',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  shadows: [
+                                    Shadow(
+                                      blurRadius: 4,
+                                      color: Colors.black45,
+                                      offset: Offset(1, 1),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -644,5 +819,10 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
         tooltip: isPremiumUser ? 'Disable Premium' : 'Enable Premium',
       ),
     );
+  }
+
+  // Redemption code dialog
+  void _showAccessCodeDialog() {
+    _showRedemptionCodeDialog();
   }
 } 
