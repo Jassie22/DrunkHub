@@ -4,7 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 /// A utility class to manage app assets
 class AppAssets {
   // SVG assets
-  static const String appIconSvg = 'assets/images/app_icon.svg';
+  static const String appIconSvg = 'assets/images/icon.svg';
   
   /// Get the app icon as an SVG widget
   static Widget getAppIconSvg({

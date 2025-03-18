@@ -45,11 +45,11 @@ class GamePrompt {
     return formattedText;
   }
 
-  static List<GamePrompt> generatePromptsFromPackages(List<GamePackage> packages) {
+  static List<GamePrompt> generatePromptsFromGameModes(List<GameMode> modes) {
     List<GamePrompt> prompts = [];
     
-    for (var package in packages) {
-      for (var promptText in package.samplePrompts) {
+    for (var mode in modes) {
+      for (var promptText in mode.samplePrompts) {
         bool requiresPlayer = promptText.contains('Current player') || promptText.contains('another player');
         bool isGroupPrompt = promptText.toLowerCase().contains('everyone') || 
                            promptText.toLowerCase().contains('all players');

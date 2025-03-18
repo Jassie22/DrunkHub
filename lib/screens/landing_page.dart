@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package_selection_page.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'game_mode_selection_page.dart';
 import '../utils/app_assets.dart';
 
 class LandingPage extends StatefulWidget {
@@ -14,10 +15,9 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
   final TextEditingController _controller = TextEditingController();
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
-  bool _showError = false;
   bool _hasAcknowledgedWarning = false;
   bool _showRedOverlay = false;
-  final bool _quickDrinkMode = false;
+  bool _quickDrinkMode = false;
 
   @override
   void initState() {
@@ -52,7 +52,6 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
       setState(() {
         players.add(_controller.text.trim());
         _controller.clear();
-        _showError = false;
       });
     }
   }
@@ -90,7 +89,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => PackageSelectionPage(
+          builder: (context) => GameModeSelectionPage(
             players: players,
             quickDrinkMode: _quickDrinkMode,
           ),
@@ -201,55 +200,18 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                       ),
                     ),
                     const SizedBox(height: 40),
-                    // Quick Drink Mode toggle
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(30),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Quick Drink Mode',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          Switch(
-                            value: _quickDrinkMode,
-                            onChanged: (value) {
-                              setState(() {
-                                // Since _quickDrinkMode is now final, we can't change it
-                                // This is just to keep the switch working visually
-                              });
-                            },
-                            activeColor: Colors.amber,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Text(
-                        'Random 3-second drink alerts during the game',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white.withAlpha(180),
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF1A237E),
+                            Color(0xFF7B1FA2),
+                          ],
+                          stops: [0.0, 1.0],
+                        ),
                         borderRadius: BorderRadius.circular(15),
                         boxShadow: [
                           BoxShadow(
@@ -281,7 +243,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                               IconButton(
                                 icon: const Icon(Icons.add_circle),
                                 onPressed: _addPlayer,
-                                color: const Color(0xFF1A237E),
+                                color: Colors.white,
                                 iconSize: 32,
                               ),
                             ],
@@ -294,7 +256,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                               return Container(
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                    color: const Color(0xFF7B1FA2),
+                                    color: Colors.white,
                                     width: 1.5,
                                   ),
                                   borderRadius: BorderRadius.circular(20),
@@ -308,6 +270,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                                       style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
+                                        color: Colors.white,
                                       ),
                                     ),
                                     const SizedBox(width: 4),
@@ -316,13 +279,55 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                                       child: const Icon(
                                         Icons.close,
                                         size: 16,
-                                        color: Color(0xFF7B1FA2),
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ],
                                 ),
                               );
                             }).toList(),
+                          ),
+                          const SizedBox(height: 20),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withAlpha(30),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Quick Drink Mode',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Switch(
+                                  value: _quickDrinkMode,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _quickDrinkMode = value;
+                                    });
+                                  },
+                                  activeColor: const Color(0xFF7B1FA2),
+                                  activeTrackColor: Colors.white.withAlpha(100),
+                                  inactiveThumbColor: Colors.white,
+                                  inactiveTrackColor: Colors.white.withAlpha(50),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Random 3-second drink alerts during the game',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white.withAlpha(180),
+                            ),
+                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
@@ -397,6 +402,27 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
               },
             ),
         ],
+      ),
+      bottomNavigationBar: Container(
+        color: const Color(0xFF1A237E),
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed('/license');
+              },
+              child: const Text(
+                '© 2025 True Node Limited',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

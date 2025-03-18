@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'screens/landing_page.dart';
+import 'screens/license_page.dart';
 
 void main() async {
   // Ensure Flutter is initialized
@@ -57,7 +58,10 @@ class MyApp extends StatelessWidget {
           titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
       ),
-      home: const LandingPage(),
+      routes: {
+        '/': (context) => const LandingPage(),
+        '/license': (context) => const LicensePage(),
+      },
       builder: (context, child) {
         // Add global error handling widget
         return MediaQuery(

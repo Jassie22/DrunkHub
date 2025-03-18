@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package_selection_page.dart';
+import 'game_mode_selection_page.dart';
 
 class PlayerSetupScreen extends StatefulWidget {
   final bool quickDrinkMode;
@@ -47,7 +47,7 @@ class _PlayerSetupScreenState extends State<PlayerSetupScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => PackageSelectionPage(
+          builder: (context) => GameModeSelectionPage(
             players: _players,
             quickDrinkMode: widget.quickDrinkMode,
           ),
