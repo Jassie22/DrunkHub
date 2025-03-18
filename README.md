@@ -1,30 +1,50 @@
 # DrunkHub
 
-A drinking game app that offers various game packages for parties and social gatherings.
+A social drinking game app built with Flutter.
+
+## About
+
+DrunkHub is a modern drinking game application designed for adults to enjoy in social settings. The app features a variety of game modes, interactive prompts, and surprise drinking challenges.
 
 ## Features
 
-- Multiple game packages with different themes and challenges
-- Premium content with subscription options
-- Player management
-- Customizable game experience
+- **Multiple Game Modes**: Classic drinking games, challenges, wildcards, and more
+- **Social Experience**: Add multiple players and track their progress
+- **Quick Drink Mode**: Random 3-second drinking challenges for added excitement
+- **Modern UI**: Beautiful and intuitive interface designed for social settings
+- **No Internet Required**: Play offline at parties or gatherings
 
-## Categories
+## Screenshots
 
-- **Warm-Up (Free)**: Simple, introductory games to get the party started.
-- **Classics**: Traditional drinking games with a modern twist.
-- **Challenges**: Dares and challenges that push the party to the next level.
-- **Special Occasions**: Games designed for specific groups or events.
+[Screenshots will be added here]
 
-## Getting Started
+## Requirements
 
-This project is a Flutter application.
+- Android 6.0 (API level 23) or higher
+- iOS 12.0 or higher
 
-A few resources to get you started if this is your first Flutter project:
+## Privacy & Safety
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+DrunkHub is built with responsible drinking in mind:
+- Adult users only (21+ or legal drinking age in your country)
+- No data collection beyond basic app functionality
+- Offline functionality for privacy
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Development
+
+DrunkHub is built with Flutter and follows modern application development practices:
+- Material Design 3
+- Responsive design for all device sizes
+- Optimized for performance
+
+## License
+
+Copyright © 2025 True Node Limited. All rights reserved.
+
+This software is proprietary. See the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+For inquiries, feedback, or support:
+- Email: support@truenode.com
+- Website: www.truenode.com

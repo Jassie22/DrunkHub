@@ -411,7 +411,56 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
           children: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pushNamed('/license');
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Row(
+                        children: [
+                          AppAssets.getAppIconSvg(
+                            width: 24,
+                            height: 24,
+                            color: const Color(0xFF1A237E),
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Legal Information',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      content: const SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Copyright © 2025 True Node Limited',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 12),
+                            Text(
+                              'All rights reserved. This application and its content are licensed for personal use only.',
+                            ),
+                            SizedBox(height: 12),
+                            Text(
+                              'DrunkHub is an entertainment app designed for adults of legal drinking age. Please drink responsibly.',
+                            ),
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
               child: const Text(
                 '© 2025 True Node Limited',
