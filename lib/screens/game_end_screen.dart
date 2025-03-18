@@ -31,6 +31,8 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
   late ConfettiController _confettiControllerRight;
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
   File? _groupPhoto;
   bool _isLoading = false;
   bool _isInitialized = false;
@@ -77,6 +79,31 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
       'color': Colors.deepPurple,
       'photoMessage': 'Save proof before they patch this bug!',
     },
+    // Adding 3 more Gen Z themed end screens
+    {
+      'id': 'slay',
+      'title': 'Absolutely Slayed',
+      'subtitle': 'You ate and left no crumbs. Periodt.',
+      'icon': '💅',
+      'color': Colors.red.shade700,
+      'photoMessage': 'Capture the slay!',
+    },
+    {
+      'id': 'rizz',
+      'title': 'Rizz Overload',
+      'subtitle': 'Your collective rizz is too powerful. It\'s wild out here.',
+      'icon': '😏',
+      'color': Colors.blue.shade600,
+      'photoMessage': 'Immortalize the rizz!',
+    },
+    {
+      'id': 'based',
+      'title': 'Based Behavior',
+      'subtitle': 'That was low-key the most based thing ever, no 🧢',
+      'icon': '💯',
+      'color': Colors.green.shade800,
+      'photoMessage': 'Snap this W!',
+    },
   ];
   
   // Selected end screen
@@ -95,14 +122,46 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
     });
     
     try {
+      // Fade animations for content
       _fadeController = AnimationController(
         vsync: this,
-        duration: const Duration(milliseconds: 800), // Increased for more subtle fade
+        duration: const Duration(milliseconds: 800),
       );
       _fadeAnimation = CurvedAnimation(
         parent: _fadeController,
-        curve: Curves.easeInOut, // Smoother curve for more subtle fade
+        curve: Curves.easeInOut,
       );
+
+      // Pulse animation for emoji
+      _pulseController = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 1500),
+      );
+      _pulseAnimation = TweenSequence<double>([
+        TweenSequenceItem(
+          tween: Tween<double>(begin: 1.0, end: 1.4)
+              .chain(CurveTween(curve: Curves.easeInOut)),
+          weight: 40,
+        ),
+        TweenSequenceItem(
+          tween: Tween<double>(begin: 1.4, end: 0.9)
+              .chain(CurveTween(curve: Curves.easeInOut)),
+          weight: 20,
+        ),
+        TweenSequenceItem(
+          tween: Tween<double>(begin: 0.9, end: 1.2)
+              .chain(CurveTween(curve: Curves.easeInOut)),
+          weight: 20,
+        ),
+        TweenSequenceItem(
+          tween: Tween<double>(begin: 1.2, end: 1.0)
+              .chain(CurveTween(curve: Curves.easeInOut)),
+          weight: 20,
+        ),
+      ]).animate(_pulseController);
+      
+      // Start pulse animation and repeat
+      _pulseController.repeat();
 
       // Initialize confetti controllers with shorter duration
       _confettiController = ConfettiController(duration: const Duration(seconds: 2));
@@ -234,6 +293,12 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
               ),
             ),
           ),
+        if (_endScreen['id'] == 'slay')
+          ..._buildSlayElements(),
+        if (_endScreen['id'] == 'rizz')
+          ..._buildRizzElements(),
+        if (_endScreen['id'] == 'based')
+          ..._buildBasedElements(),
         if (_endScreen['id'] == 'core_memory')
           ..._buildBubbles(),
         if (_endScreen['id'] == 'vibe_check')
@@ -254,28 +319,27 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Icon and title
+                    // Icon with pulse animation (removed app logo)
                     FadeTransition(
                       opacity: _fadeAnimation,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _endScreen['icon'],
-                            style: const TextStyle(fontSize: 50),
-                          ),
-                          const SizedBox(width: 15),
-                          AppAssets.getAppIconSvg(
-                            width: 60,
-                            height: 60,
-                            color: Colors.white,
-                          ),
-                        ],
+                      child: Center(
+                        child: AnimatedBuilder(
+                          animation: _pulseAnimation,
+                          builder: (context, child) {
+                            return Transform.scale(
+                              scale: _pulseAnimation.value,
+                              child: Text(
+                                _endScreen['icon'],
+                                style: const TextStyle(fontSize: 70),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
 
-                    // Title with theme-specific styling
+                    // Title with improved gradient that doesn't fade out too much
                     FadeTransition(
                       opacity: _fadeAnimation,
                       child: ShaderMask(
@@ -283,10 +347,11 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
                           return LinearGradient(
                             colors: [
                               Colors.white,
-                              _endScreen['color'] as Color,
+                              Colors.white.withOpacity(0.9), // Higher opacity to prevent too much fade
                             ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            stops: const [0.0, 0.9], // Adjusted stops for less fading
                           ).createShader(bounds);
                         },
                         child: Text(
@@ -323,7 +388,7 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
                     // Photo section
                     _buildPhotoSection(),
                     
-                    // Buttons
+                    // Buttons - simplified with only Play Again and Home
                     _buildButtons(),
                   ],
                 ),
@@ -390,6 +455,12 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
         _fadeController.stop();
       }
       _fadeController.dispose();
+      
+      // Dispose pulse controller
+      if (_pulseController.isAnimating) {
+        _pulseController.stop();
+      }
+      _pulseController.dispose();
     } catch (e) {
       debugPrint("Error disposing controllers: $e");
     }
@@ -647,7 +718,7 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
     );
   }
 
-  // Build photo section
+  // Build photo section with thinner banner
   Widget _buildPhotoSection() {
     return Column(
       children: [
@@ -695,16 +766,16 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
                         ),
                       ),
                       
-                      // Gradient footer with dynamic theme text
+                      // Thinner banner with just the icon and DrunkHub text
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.symmetric(vertical: 4), // Reduced vertical padding
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,
                             colors: [
-                              const Color(0xFF1A237E),
+                              const Color(0xFF1A237E).withOpacity(0.8), // More transparent
                               _endScreen['color'] as Color,
                             ],
                           ),
@@ -718,16 +789,16 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
                           children: [
                             Text(
                               _endScreen['icon'],
-                              style: const TextStyle(fontSize: 18),
+                              style: const TextStyle(fontSize: 14), // Smaller icon
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 4), // Less spacing
                             const Text(
                               "DrunkHub",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                fontSize: 12, // Smaller text
                               ),
                             ),
                           ],
@@ -776,7 +847,7 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
     );
   }
 
-  // Build buttons
+  // Build buttons - removed New Game button
   Widget _buildButtons() {
     return FadeTransition(
       opacity: _fadeAnimation,
@@ -816,34 +887,18 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
             ),
           ),
           const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextButton(
-                onPressed: widget.onNewGame,
-                child: const Text(
-                  'New Game',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                  ),
-                ),
+          TextButton(
+            onPressed: () {
+              // Navigate all the way back to the landing page
+              Navigator.of(context).popUntil((route) => route.isFirst);
+            },
+            child: const Text(
+              'Home',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.white,
               ),
-              const SizedBox(width: 16),
-              TextButton(
-                onPressed: () {
-                  // Navigate all the way back to the landing page
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                },
-                child: const Text(
-                  'Home',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),
@@ -866,6 +921,137 @@ class _GameEndScreenState extends State<GameEndScreen> with SingleTickerProvider
       default:
         return 'Play Again';
     }
+  }
+
+  // Create elements for new "Slay" theme
+  List<Widget> _buildSlayElements() {
+    final elements = <Widget>[];
+    final random = Random();
+    final emojis = ['💅', '💄', '👑', '💋', '💎', '✨'];
+    
+    for (int i = 0; i < 15; i++) {
+      final size = random.nextDouble() * 30 + 15;
+      final emoji = emojis[random.nextInt(emojis.length)];
+      elements.add(
+        Positioned(
+          left: random.nextDouble() * MediaQuery.of(context).size.width,
+          top: random.nextDouble() * MediaQuery.of(context).size.height,
+          child: TweenAnimationBuilder(
+            tween: Tween<double>(begin: 0, end: 1),
+            duration: Duration(seconds: random.nextInt(5) + 3),
+            builder: (context, double value, child) {
+              return Transform.translate(
+                offset: Offset(
+                  0,
+                  sin(value * 3 * pi) * 15,
+                ),
+                child: Transform.rotate(
+                  angle: sin(value * pi) * 0.2,
+                  child: Opacity(
+                    opacity: 0.5,
+                    child: Text(
+                      emoji,
+                      style: TextStyle(
+                        fontSize: size,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
+    
+    return elements;
+  }
+
+  // Create elements for new "Rizz" theme
+  List<Widget> _buildRizzElements() {
+    final elements = <Widget>[];
+    final random = Random();
+    final emojis = ['😏', '💘', '🤙', '👀', '💌', '🫰'];
+    
+    for (int i = 0; i < 15; i++) {
+      final size = random.nextDouble() * 30 + 15;
+      final emoji = emojis[random.nextInt(emojis.length)];
+      elements.add(
+        Positioned(
+          left: random.nextDouble() * MediaQuery.of(context).size.width,
+          top: random.nextDouble() * MediaQuery.of(context).size.height,
+          child: TweenAnimationBuilder(
+            tween: Tween<double>(begin: 0, end: 1),
+            duration: Duration(seconds: random.nextInt(6) + 4),
+            builder: (context, double value, child) {
+              // Sliding from side with bounce effect
+              final xOffset = (1 - value) * MediaQuery.of(context).size.width * 0.5 * (random.nextBool() ? 1 : -1);
+              final yOffset = sin(value * 2 * pi) * 20;
+              
+              return Transform.translate(
+                offset: Offset(xOffset, yOffset),
+                child: Opacity(
+                  opacity: 0.7,
+                  child: Text(
+                    emoji,
+                    style: TextStyle(
+                      fontSize: size,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
+    
+    return elements;
+  }
+
+  // Create elements for new "Based" theme
+  List<Widget> _buildBasedElements() {
+    final elements = <Widget>[];
+    final random = Random();
+    final emojis = ['💯', '🔥', '👌', '🙌', '📈', '🏆'];
+    
+    for (int i = 0; i < 15; i++) {
+      final size = random.nextDouble() * 30 + 15;
+      final emoji = emojis[random.nextInt(emojis.length)];
+      elements.add(
+        Positioned(
+          left: random.nextDouble() * MediaQuery.of(context).size.width,
+          top: random.nextDouble() * MediaQuery.of(context).size.height,
+          child: TweenAnimationBuilder(
+            tween: Tween<double>(begin: 0, end: 1),
+            duration: Duration(seconds: random.nextInt(5) + 3),
+            builder: (context, double value, child) {
+              // Starting small and growing + slight rotation
+              final scale = value * 1.2;
+              final rotation = sin(value * 3 * pi) * 0.3;
+              
+              return Transform.scale(
+                scale: scale,
+                child: Transform.rotate(
+                  angle: rotation,
+                  child: Opacity(
+                    opacity: 0.6,
+                    child: Text(
+                      emoji,
+                      style: TextStyle(
+                        fontSize: size,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
+    
+    return elements;
   }
 }
 
