@@ -116,8 +116,21 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
 
   void _initializeGame() {
     try {
-      // Generate a smaller set of prompts
+      // Generate a set of prompts from selected game modes
       _prompts = GamePrompt.generatePromptsFromGameModes(widget.selectedModes);
+      
+      // Safety check - ensure we have some prompts
+      if (_prompts.isEmpty) {
+        debugPrint('Warning: No prompts generated. Adding fallback prompts.');
+        _prompts = [
+          GamePrompt(text: 'Take a sip if you\'re playing this game!'),
+          GamePrompt(text: 'Everyone take a drink to get started!', isGroupPrompt: true),
+          GamePrompt(text: 'Choose someone to take a drink with you'),
+          GamePrompt(text: 'Last person to touch their nose drinks'),
+          GamePrompt(text: 'Everyone wearing jeans drinks', isGroupPrompt: true),
+        ];
+      }
+      
       _prompts.shuffle();
       
       if (_prompts.length > maxPrompts) {
@@ -125,9 +138,14 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       }
       
       _shuffledPlayers = List.from(widget.players);
+      // Safety check - ensure we have some players
+      if (_shuffledPlayers.isEmpty) {
+        _shuffledPlayers = ['Player 1', 'Player 2'];
+      }
       _shuffledPlayers.shuffle();
       
-      // Reset drink mode trigger state
+      // Reset game state
+      _currentPromptIndex = -1;
       _drinkModeAlreadyTriggered = false;
       
       // Choose random prompts to activate drink mode (excluding the first quarter of prompts and the last prompt)
@@ -165,6 +183,14 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       }
     } catch (e) {
       debugPrint("Error initializing game: $e");
+      // Recovery mechanism
+      _prompts = [
+        GamePrompt(text: 'Take a sip if you\'re playing this game!'),
+        GamePrompt(text: 'Everyone take a drink to get started!', isGroupPrompt: true),
+        GamePrompt(text: 'Choose someone to take a drink with you'),
+      ];
+      _shuffledPlayers = widget.players.isNotEmpty ? List.from(widget.players) : ['Player 1', 'Player 2'];
+      _currentPromptIndex = -1;
     }
   }
 
@@ -280,17 +306,29 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   }
 
   void _nextPrompt() {
+    // Safety check - don't proceed if we're not ready
     if (!_isInitialized || _showQuickDrink || _isAnimating || _isAnimatingLeft) return;
     
-    setState(() {
-      if (_showTutorial) {
-        _showTutorial = false;
-        _currentPromptIndex = 0;
-        _rattleController.stop();
-      } else {
-        _animateCardSwipe(isLeft: false);
+    try {
+      setState(() {
+        if (_showTutorial) {
+          _showTutorial = false;
+          _currentPromptIndex = 0;
+          _rattleController.stop();
+        } else {
+          _animateCardSwipe(isLeft: false);
+        }
+      });
+    } catch (e) {
+      debugPrint("Error in _nextPrompt: $e");
+      // Recovery mechanism
+      if (mounted) {
+        setState(() {
+          _showTutorial = false;
+          _currentPromptIndex = 0;
+        });
       }
-    });
+    }
   }
   
   void _animateCardSwipe({required bool isLeft}) {
@@ -821,10 +859,28 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   }
   
   Widget _buildGameCard() {
-    if (_currentPromptIndex < 0 || _currentPromptIndex >= _prompts.length) {
-      return const Center(child: CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-      ));
+    // Safety check - make sure we have valid indices
+    if (_currentPromptIndex < 0 || _prompts.isEmpty || _currentPromptIndex >= _prompts.length) {
+      return Center(
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.85,
+          height: MediaQuery.of(context).size.height * 0.65,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 20),
+                Text("Loading game...", style: TextStyle(color: Color(0xFF1A237E))),
+              ],
+            ),
+          ),
+        ),
+      );
     }
     
     return GestureDetector(

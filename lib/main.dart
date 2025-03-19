@@ -7,9 +7,10 @@ void main() async {
   // Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Set preferred orientations to portrait only
+  // Force portrait orientation
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
   ]);
   
   // Set system UI overlay style
@@ -62,13 +63,13 @@ class MyApp extends StatelessWidget {
         children: [
           const LandingPage(),
           Positioned(
-            right: 10,
-            bottom: 10,
+            left: 16,
+            bottom: 16,
             child: Text(
-              'DrunkHub',
+              'D',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.4),
-                fontSize: 12,
+                color: const Color(0xFF1A237E).withOpacity(0.6),
+                fontSize: 48,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -78,9 +79,9 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         // Add global error handling widget
         return MediaQuery(
-          // Prevent text scaling to avoid layout issues
+          // Set app-wide text scaling
           data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-          child: child!,
+          child: child ?? Container(),
         );
       },
     );
