@@ -117,7 +117,31 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   void _initializeGame() {
     try {
       // Generate a set of prompts from selected game modes
-      _prompts = GamePrompt.generatePromptsFromGameModes(widget.selectedModes);
+      if (widget.selectedModes.isEmpty) {
+        debugPrint('Warning: No game modes selected. Adding fallback mode.');
+        // Add the Getting Started game mode as fallback
+        final fallbackMode = gameModes.firstWhere(
+          (mode) => mode.id == 'getting_started',
+          orElse: () => GameMode(
+            id: 'fallback',
+            name: 'Fallback Mode',
+            description: 'Basic drinking game',
+            icon: '🎮',
+            isPremium: false,
+            category: 'Warm-Up (Free)',
+            samplePrompts: [
+              'Take a sip if you\'re playing this game!',
+              'Everyone take a drink to get started!',
+              'Choose someone to take a drink with you',
+              'Last person to touch their nose drinks',
+              'Everyone wearing jeans drinks',
+            ],
+          ),
+        );
+        _prompts = GamePrompt.generatePromptsFromGameModes([fallbackMode]);
+      } else {
+        _prompts = GamePrompt.generatePromptsFromGameModes(widget.selectedModes);
+      }
       
       // Safety check - ensure we have some prompts
       if (_prompts.isEmpty) {
@@ -193,7 +217,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       _currentPromptIndex = -1;
     }
   }
-
+  
   void _showQuickDrinkAlert() {
     // Much stronger haptic feedback sequence
     HapticFeedback.heavyImpact();
@@ -263,18 +287,18 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   
   // New method to handle ending the quick drink alert
   void _endQuickDrink() {
-    _quickDrinkTimer?.cancel();
-    HapticFeedback.heavyImpact();
+        _quickDrinkTimer?.cancel();
+        HapticFeedback.heavyImpact();
     
     // Stop shaking
     _rattleController.stop();
     _rattleController.reset();
-    
-    // Hide the overlay after a short delay
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) {
-        setState(() {
-          _showQuickDrink = false;
+        
+        // Hide the overlay after a short delay
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            setState(() {
+              _showQuickDrink = false;
         });
       }
     });
@@ -310,11 +334,11 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     if (!_isInitialized || _showQuickDrink || _isAnimating || _isAnimatingLeft) return;
     
     try {
-      setState(() {
-        if (_showTutorial) {
-          _showTutorial = false;
-          _currentPromptIndex = 0;
-          _rattleController.stop();
+    setState(() {
+      if (_showTutorial) {
+        _showTutorial = false;
+        _currentPromptIndex = 0;
+        _rattleController.stop();
         } else {
           _animateCardSwipe(isLeft: false);
         }
@@ -338,7 +362,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       if (isLeft) {
         _isAnimatingLeft = true;
       } else {
-        _isAnimating = true;
+      _isAnimating = true;
       }
     });
     
@@ -350,12 +374,12 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       if (mounted) {
         setState(() {
           try {
-            if (_currentPromptIndex >= _prompts.length - 1) {
+          if (_currentPromptIndex >= _prompts.length - 1) {
               // We're at the last prompt, trigger end game
               Future.microtask(() => _endGame());
-              return;
-            }
-            _currentPromptIndex++;
+            return;
+          }
+          _currentPromptIndex++;
             
             // Check if the current index is in our drink prompt indices list
             // AND if drink mode hasn't already been triggered in this game session
@@ -377,10 +401,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
               Future.microtask(() => _endGame());
             } else {
               _currentPromptIndex = min(_currentPromptIndex + 1, _prompts.length - 1);
-              _currentTargetPlayer = _getRandomPlayer();
+          _currentTargetPlayer = _getRandomPlayer();
             }
           } finally {
-            _isAnimating = false;
+          _isAnimating = false;
             _isAnimatingLeft = false;
             // Reset the drag position so the next card appears in the middle
             _dragUpdate = Offset.zero;
@@ -421,7 +445,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   @override
   void dispose() {
     _quickDrinkTimer?.cancel();
-    _rattleController.dispose();
+      _rattleController.dispose();
     _audioPlayer.dispose();
     super.dispose();
   }
@@ -500,7 +524,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   
   void _fallbackNavigation() {
     // Simple fallback navigation
-    if (mounted) {
+      if (mounted) {
       try {
         Navigator.pop(context);
       } catch (e2) {
@@ -589,8 +613,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                   return Transform.translate(
                     offset: Offset(_rattleAnimation.value * 25, 0), // Increased shake amount
                     child: GestureDetector(
-                      onTap: () {}, // Prevent taps from passing through
-                      child: Container(
+                onTap: () {}, // Prevent taps from passing through
+                child: Container(
                         decoration: BoxDecoration(
                           // Gradient background instead of flat color
                           gradient: LinearGradient(
@@ -603,10 +627,10 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                             ],
                           ),
                         ),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
                               // Animated icon for attention
                               Container(
                                 padding: const EdgeInsets.all(15),
@@ -690,19 +714,19 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                 child: const Text(
                                   'Take 3 sips or 1 shot if you\'re feeling brave!',
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.white,
+                          style: TextStyle(
+                            color: Colors.white,
                                     fontSize: 24,
-                                    fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.bold,
                                     shadows: [Shadow(
                                       color: Colors.black54,
                                       blurRadius: 3,
                                       offset: Offset(1, 1),
                                     )],
                                   ),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
                               // Skip button
                               TextButton(
                                 onPressed: _skipQuickDrink,
@@ -716,16 +740,16 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                 child: const Text(
                                   'SKIP',
                                   style: TextStyle(
-                                    color: Colors.white,
+                            color: Colors.white,
                                     fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.bold,
                                   ),
-                                ),
-                              ),
-                            ],
                           ),
                         ),
-                      ),
+                      ],
+                    ),
+                  ),
+                ),
                     ),
                   );
                 },

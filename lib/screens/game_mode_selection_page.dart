@@ -55,8 +55,8 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
               const SizedBox(width: 10),
               const Expanded(
                 child: Text('DrunkHub Premium',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
                     fontSize: 18,
                   ),
                 ),
@@ -65,7 +65,7 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
           ),
           content: SingleChildScrollView(
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                   margin: const EdgeInsets.symmetric(vertical: 10),
@@ -76,10 +76,10 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
+            children: [
+              const Text(
                         'Premium Features:',
-                        style: TextStyle(
+                style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -97,10 +97,10 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1A237E),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1A237E),
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      shape: RoundedRectangleBorder(
+                  shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
@@ -170,27 +170,27 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: () async {
-                      Navigator.of(context).pop();
-                      // Show loading indicator
-                      _showLoadingDialog();
-                      try {
-                        await _purchaseService.purchaseLifetime();
-                        if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                      } catch (e) {
-                        if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                        _showErrorDialog('Payment Required', 
-                          'This is a demo app. In a real app, this would connect to the payment system.');
-                      }
-                    },
+                  ),
+                ),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  // Show loading indicator
+                  _showLoadingDialog();
+                  try {
+                    await _purchaseService.purchaseLifetime();
+                    if (mounted) Navigator.of(context).pop(); // Dismiss loading
+                  } catch (e) {
+                    if (mounted) Navigator.of(context).pop(); // Dismiss loading
+                    _showErrorDialog('Payment Required', 
+                      'This is a demo app. In a real app, this would connect to the payment system.');
+                  }
+                },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
                           'Lifetime Access',
-                          style: TextStyle(
+                  style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -200,10 +200,10 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                           '${_purchaseService.currencySymbol}${_purchaseService.lifetimePrice}',
                           style: const TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
                       ],
                     ),
                   ),
@@ -219,9 +219,9 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       side: const BorderSide(color: Color(0xFF1A237E)),
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
                       _showRedemptionCodeDialog();
                     },
                     child: Row(
@@ -231,12 +231,12 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                         const SizedBox(width: 8),
                         const Text(
                           'Redeem Access Code',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1A237E),
-                          ),
-                        ),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1A237E),
+                  ),
+                ),
                       ],
                     ),
                   ),
@@ -370,7 +370,7 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                       
                       // For demo purposes, accept any code
                       Navigator.of(context).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('This is a demo. In a real app, this would validate your code.'),
                           backgroundColor: Colors.green,
@@ -389,9 +389,9 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                       )
                     : const Text(
                         'Redeem',
-                        style: TextStyle(
+                    style: TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.bold,
                         ),
                       ),
                 ),
@@ -510,8 +510,8 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                       ] : null,
                     ),
                     child: Text(
-                      mode.icon,
-                      style: const TextStyle(fontSize: 24),
+                    mode.icon,
+                    style: const TextStyle(fontSize: 24),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -565,9 +565,9 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                         ],
                       ),
                       child: const Icon(
-                        Icons.check_circle,
-                        color: Color(0xFF1A237E),
-                        size: 24,
+                      Icons.check_circle,
+                      color: Color(0xFF1A237E),
+                      size: 24,
                       ),
                     ),
                 ],
@@ -579,15 +579,15 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                   borderRadius: BorderRadius.circular(15),
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                    child: Container(
-                      decoration: BoxDecoration(
+                child: Container(
+                  decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.4),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
@@ -595,10 +595,10 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
-                                Icons.lock,
-                                color: Colors.white,
-                                size: 32,
-                              ),
+                          Icons.lock,
+                          color: Colors.white,
+                          size: 32,
+                        ),
                             ),
                             const SizedBox(height: 8),
                             Container(
@@ -608,22 +608,22 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: const Text(
-                                'Premium',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                          'Premium',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                                   fontSize: 14,
-                                  shadows: [
-                                    Shadow(
-                                      blurRadius: 4,
+                            shadows: [
+                              Shadow(
+                                blurRadius: 4,
                                       color: Colors.black45,
                                       offset: Offset(1, 1),
-                                    ),
-                                  ],
-                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                                ),
+                          ),
+                        ),
+                      ],
                         ),
                       ),
                     ),
@@ -637,7 +637,51 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
   }
 
   void _startGame() {
-    if (selectedModes.isNotEmpty) {
+    if (selectedModes.isEmpty) {
+      // If no modes are selected, show a dialog suggesting to select at least one
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('No Game Modes Selected'),
+            content: const Text('Would you like to use the "Getting Started" game mode or select your own?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  // Add the "Getting Started" game mode
+                  final startingMode = gameModes.firstWhere(
+                    (mode) => mode.id == 'getting_started',
+                    orElse: () => gameModes.first,
+                  );
+                  
+                  setState(() {
+                    selectedModes.add(startingMode);
+                  });
+                  
+                  // Now start the game with this mode
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => GameScreen(
+                        players: widget.players,
+                        selectedModes: selectedModes.toList(),
+                        quickDrinkMode: widget.quickDrinkMode,
+                      ),
+                    ),
+                  );
+                },
+                child: const Text('Use Getting Started', style: TextStyle(color: Color(0xFF1A237E))),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Select My Own', style: TextStyle(color: Colors.grey)),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -646,13 +690,6 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
             selectedModes: selectedModes.toList(),
             quickDrinkMode: widget.quickDrinkMode,
           ),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select at least one game mode'),
-          duration: Duration(seconds: 2),
         ),
       );
     }
