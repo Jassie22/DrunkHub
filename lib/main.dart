@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'screens/landing_page.dart';
 import 'package:image_watermark/image_watermark.dart';
+import 'utils/logo_painter.dart';
 
 void main() async {
   // Ensure Flutter is initialized
@@ -65,13 +66,10 @@ class MyApp extends StatelessWidget {
           Positioned(
             left: 16,
             bottom: 16,
-            child: Text(
-              'D',
-              style: TextStyle(
-                color: const Color(0xFF1A237E).withOpacity(0.6),
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-              ),
+            child: CircularDrunkHubLogo(
+              size: 60,
+              color: const Color(0xFF1A237E).withOpacity(0.6),
+              isWatermark: true,
             ),
           ),
         ],

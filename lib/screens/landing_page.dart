@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'game_mode_selection_page.dart';
 import '../utils/app_assets.dart';
 import 'package:share_plus/share_plus.dart';
+import '../utils/logo_painter.dart';
+import 'dart:ui' as ui;
+import 'dart:typed_data';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -162,6 +165,110 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
         );
       },
     );
+  }
+
+  void _shareApp() async {
+    try {
+      // Create a logo image with watermark
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+      
+      // Set the size of the image
+      const size = Size(600, 600);
+      
+      // Draw a gradient background similar to the app
+      final Paint bgPaint = Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF1A237E), // Deep Blue
+            Color(0xFF7B1FA2), // Purple
+          ],
+        ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+      
+      canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bgPaint);
+      
+      // Create a text style and painter
+      const text = 'Try DrunkHub!';
+      const subText = 'The ultimate drinking game app';
+      
+      final textPainter = TextPainter(
+        text: const TextSpan(
+          text: text,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 60,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+        textAlign: TextAlign.center,
+      );
+      
+      final subTextPainter = TextPainter(
+        text: const TextSpan(
+          text: subText,
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 30,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+        textAlign: TextAlign.center,
+      );
+      
+      // Layout and paint the text in the center
+      textPainter.layout(maxWidth: size.width);
+      subTextPainter.layout(maxWidth: size.width);
+      
+      textPainter.paint(
+        canvas, 
+        Offset((size.width - textPainter.width) / 2, size.height / 2 - 70)
+      );
+      
+      subTextPainter.paint(
+        canvas, 
+        Offset((size.width - subTextPainter.width) / 2, size.height / 2)
+      );
+      
+      // Draw the logo watermark in the bottom right corner
+      final logoPainter = LogoPainter(
+        baseColor: Colors.white,
+        isWatermark: true,
+      );
+      
+      final logoSize = Size(120, 120);
+      final logoOffset = Offset(size.width - 130, size.height - 130);
+      
+      canvas.save();
+      canvas.translate(logoOffset.dx, logoOffset.dy);
+      logoPainter.paint(canvas, logoSize);
+      canvas.restore();
+      
+      // Convert to an image
+      final picture = recorder.endRecording();
+      final img = await picture.toImage(size.width.toInt(), size.height.toInt());
+      final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+      final buffer = byteData!.buffer.asUint8List();
+      
+      // Share the image
+      await Share.shareXFiles(
+        [
+          XFile.fromData(
+            buffer,
+            name: 'drunkhub_share.png',
+            mimeType: 'image/png',
+          ),
+        ],
+        text: 'Check out DrunkHub - The ultimate drinking game app! Download now: https://drunkhub.app',
+      );
+    } catch (e) {
+      debugPrint('Error sharing app: $e');
+      // Fallback to simple text sharing
+      await Share.share('Check out DrunkHub - The ultimate drinking game app! Download now: https://drunkhub.app');
+    }
   }
 
   @override
@@ -339,12 +446,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                     Container(
                       margin: const EdgeInsets.only(bottom: 30),
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          Share.share(
-                            'Check out DrunkHub - the ultimate social drinking game app! https://truenode.com/drunkhub',
-                            subject: 'DrunkHub - Social Drinking Game',
-                          );
-                        },
+                        onPressed: _shareApp,
                         icon: const Icon(Icons.share, size: 24, color: Color(0xFF1A237E)),
                         label: const Text(
                           'Share with Friends',
@@ -437,76 +539,6 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
               ),
             ),
         ],
-      ),
-      bottomNavigationBar: Container(
-        color: const Color(0xFF1A237E),
-        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Row(
-                        children: [
-                          AppAssets.getAppIconSvg(
-                            width: 18,
-                            height: 18,
-                            color: const Color(0xFF1A237E),
-                          ),
-                          const SizedBox(width: 6),
-                          const Text(
-                            'Legal Information',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      content: const SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Copyright © 2025 True Node Limited',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(height: 12),
-                            Text(
-                              'All rights reserved. This application and its content are licensed for personal use only.',
-                            ),
-                            SizedBox(height: 12),
-                            Text(
-                              'DrunkHub is an entertainment app designed for adults of legal drinking age. Please drink responsibly.',
-                            ),
-                          ],
-                        ),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('OK'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              child: const Text(
-                '© 2025 True Node Limited',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 10,
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
