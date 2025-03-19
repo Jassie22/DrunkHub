@@ -53,188 +53,205 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
             children: [
               const Icon(Icons.star, color: Colors.amber, size: 24),
               const SizedBox(width: 10),
-              const Text('DrunkHub Premium',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
+              const Expanded(
+                child: Text('DrunkHub Premium',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
                 ),
               ),
             ],
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Premium Features:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildPremiumFeature('9 Premium Game Bundles'),
-                    _buildPremiumFeature('7 Epic Finale Experiences'),
-                    _buildPremiumFeature('No Ads or Restrictions'),
-                    _buildPremiumFeature('Regular New Content'),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 15),
-              // Weekly subscription
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1A237E),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(12),
                   ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Premium Features:',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      _buildPremiumFeature('9 Premium Game Bundles'),
+                      _buildPremiumFeature('7 Epic Finale Experiences'),
+                      _buildPremiumFeature('No Ads or Restrictions'),
+                      _buildPremiumFeature('Regular New Content'),
+                    ],
+                  ),
                 ),
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  // Show loading indicator
-                  _showLoadingDialog();
-                  try {
-                    await _purchaseService.purchaseWeekly();
-                    if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                  } catch (e) {
-                    if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                    _showErrorDialog('Payment Required', 
-                      'This is a demo app. In a real app, this would connect to the payment system.');
-                  }
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Weekly Subscription',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                const SizedBox(height: 15),
+                // Weekly subscription
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1A237E),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    Row(
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      // Show loading indicator
+                      _showLoadingDialog();
+                      try {
+                        await _purchaseService.purchaseWeekly();
+                        if (mounted) Navigator.of(context).pop(); // Dismiss loading
+                      } catch (e) {
+                        if (mounted) Navigator.of(context).pop(); // Dismiss loading
+                        _showErrorDialog('Payment Required', 
+                          'This is a demo app. In a real app, this would connect to the payment system.');
+                      }
+                    },
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Weekly Subscription',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                const Text(
+                                  '\$2.99',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Text(
+                                    '3-DAY FREE',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Lifetime access
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF7B1FA2),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                      // Show loading indicator
+                      _showLoadingDialog();
+                      try {
+                        await _purchaseService.purchaseLifetime();
+                        if (mounted) Navigator.of(context).pop(); // Dismiss loading
+                      } catch (e) {
+                        if (mounted) Navigator.of(context).pop(); // Dismiss loading
+                        _showErrorDialog('Payment Required', 
+                          'This is a demo app. In a real app, this would connect to the payment system.');
+                      }
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          '\$2.99',
+                          'Lifetime Access',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Text(
-                            '3-DAY FREE',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                        const Text(
+                          '\$9.99',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              // Lifetime access
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF7B1FA2),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  // Show loading indicator
-                  _showLoadingDialog();
-                  try {
-                    await _purchaseService.purchaseLifetime();
-                    if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                  } catch (e) {
-                    if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                    _showErrorDialog('Payment Required', 
-                      'This is a demo app. In a real app, this would connect to the payment system.');
-                  }
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Lifetime Access',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                const SizedBox(height: 10),
+                // Redemption code
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
+                      side: const BorderSide(color: Color(0xFF1A237E)),
                     ),
-                    const Text(
-                      '\$9.99',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _showRedemptionCodeDialog();
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.card_giftcard, size: 18, color: Color(0xFF1A237E)),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Redeem Access Code',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1A237E),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              // Redemption code
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
                   ),
-                  side: const BorderSide(color: Color(0xFF1A237E)),
                 ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _showRedemptionCodeDialog();
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.card_giftcard, size: 18, color: Color(0xFF1A237E)),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Redeem Access Code',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1A237E),
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Maybe Later'),
                 ),
-              ),
-              const SizedBox(height: 12),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Maybe Later'),
-              ),
-            ],
+              ],
+            ),
           ),
           contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
           shape: RoundedRectangleBorder(
