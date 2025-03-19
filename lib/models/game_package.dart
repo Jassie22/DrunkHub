@@ -348,7 +348,7 @@ final List<GameMode> gameModes = [
       'Everyone who\'s ever been called clingy drinks',
       'Last person to successfully name 5 toxic traits drinks',
       'Current player, who in this room would you never hook up with? They drink',
-      'Truth: Current player, what\'s the most controversial opinion you've ever had? Group votes if it\'s valid - drink if no',
+      'Truth: Current player, what\'s the most controversial opinion you\'ve ever had? Group votes if it\'s valid - drink if no',
       'Sip if you\'ve ever posted something to make someone jealous',
       'Person who most recently got a new follower gives out 2 drinks',
       'Everyone who\'s ever been curved drinks',
@@ -546,7 +546,6 @@ final List<GameMode> gameModes = [
     'Never have I ever gone vegan/vegetarian and quit after less than a month',
     'Never have I ever taken food from a roommate without asking',
     'Never have I ever ordered food delivery when I was too lazy to go outside',
-    'Never have I ever spent over $50 on a single meal',
     'Never have I ever used my parents\' credit card without permission',
     'Never have I ever gone into credit card debt for something unnecessary',
     'Never have I ever pretended to be rich when I was broke',
@@ -698,59 +697,199 @@ final List<GameMode> gameModes = [
   GameMode(
     id: 'most_likely_to',
     name: 'Most Likely To',
-    description: 'Find out what your friends really think about who would most likely do what!',
+    description: 'Who\'s most likely to do these things? Different formats keep the game exciting!',
     icon: '👀',
     isPremium: true,
     category: 'Classics',
     samplePrompts: [
-      'Most likely to become a meme',
-      'Most likely to win an eating contest',
-      'Most likely to get arrested (for something minor)',
-      'Most likely to become a TikTok star',
-      'Most likely to invent something world-changing',
-      'Most likely to survive a zombie apocalypse',
-      'Most likely to write a bestselling novel',
-      'Most likely to date a celebrity',
-      'Most likely to go viral for something embarrassing',
-      'Most likely to live off the grid',
-      'Most likely to become a millionaire',
-      'Most likely to move abroad',
-      'Most likely to become famous',
-      'Most likely to get married first',
-      'Most likely to win the lottery',
-      'Most likely to become a doctor',
-      'Most likely to become a lawyer',
-      'Most likely to become a teacher',
-      'Most likely to become a chef',
-      'Most likely to become a musician',
-      'Most likely to become a writer',
-      'Most likely to become an artist',
-      'Most likely to become a scientist',
-      'Most likely to become a politician',
-      'Most likely to become a model',
-      'Most likely to become an actor',
-      'Most likely to become a dancer',
-      'Most likely to become a singer',
-      'Most likely to become a comedian',
-      'Most likely to become a photographer',
-      'Most likely to become a designer',
-      'Most likely to become a programmer',
-      'Most likely to become a gamer',
-      'Most likely to become a chef',
-      'Most likely to become a musician',
-      'Most likely to become a writer',
-      'Most likely to become an artist',
-      'Most likely to become a scientist',
-      'Most likely to become a politician',
-      'Most likely to become a model',
-      'Most likely to become an actor',
-      'Most likely to become a dancer',
-      'Most likely to become a singer',
-      'Most likely to become a comedian',
-      'Most likely to become a photographer',
-      'Most likely to become a designer',
-      'Most likely to become a programmer',
-      'Most likely to become a gamer',
+      // Between player comparisons
+      'Between Current player and another player, who\'s most likely to become TikTok famous overnight?',
+      'Between Current player and another player, who\'s most likely to accidentally go live on Instagram at the worst moment?',
+      'Between Current player and another player, who\'s most likely to drop their phone in the toilet but still use it?',
+      'Between Current player and another player, who\'s most likely to get canceled for something they said online?',
+      'Between Current player and another player, who\'s most likely to become a millionaire before 30?',
+      
+      // Point to format
+      'Point to the person most likely to forget they were on a Zoom call and do something embarrassing!',
+      'Point to the person most likely to become an influencer!',
+      'Point to the person most likely to have a viral tweet without even trying!',
+      'Point to the person most likely to quit their job to pursue a passion!',
+      'Point to the person most likely to live in a van and travel the world!',
+      
+      // Direct question format
+      'Who\'s most likely to have hundreds of unread emails?',
+      'Who\'s most likely to ghost someone mid-conversation?',
+      'Who\'s most likely to have a secret finsta account?',
+      'Who\'s most likely to fall for a social media scam?',
+      'Who\'s most likely to start a successful side hustle?',
+      
+      // Time to vote format
+      'Time to vote! Who\'s most likely to win the lottery and lose it all within a year?',
+      'Time to vote! Who\'s most likely to move to a city they\'ve never visited?',
+      'Time to vote! Who\'s most likely to have a midlife crisis at 25?',
+      'Time to vote! Who\'s most likely to change careers completely in the next five years?',
+      'Time to vote! Who\'s most likely to become a CEO?',
+      
+      // Everyone points format
+      'Everyone point to who\'s most likely to start a controversial business!',
+      'Everyone point to who\'s most likely to retire early!',
+      'Everyone point to who\'s most likely to be famous for something unexpected!',
+      'Everyone point to who\'s most likely to work for a tech startup that fails spectacularly!',
+      'Everyone point to who\'s most likely to end up on a reality TV show!',
+      
+      // Between player comparison (Personal Traits)
+      'Between Current player and another player, who\'s most likely to cry during a commercial?',
+      'Between Current player and another player, who\'s most likely to laugh at a serious moment?',
+      'Between Current player and another player, who\'s most likely to adopt 5+ pets?',
+      'Between Current player and another player, who\'s most likely to believe in conspiracy theories?',
+      'Between Current player and another player, who\'s most likely to go off the grid for "mental health"?',
+      
+      // Direct question (Personal Traits)
+      'Who\'s most likely to still use slang from 5 years ago?',
+      'Who\'s most likely to be mistaken for a celebrity?',
+      'Who\'s most likely to spend their last $20 on something completely unnecessary?',
+      'Who\'s most likely to become vegan and make everyone know about it?',
+      'Who\'s most likely to be secretly talented at something random?',
+      
+      // Point to format (Personal Traits)
+      'Point to the person most likely to tell the same story multiple times!',
+      'Point to the person most likely to be late to their own wedding!',
+      'Point to the person most likely to become obsessed with a new hobby every month!',
+      'Point to the person most likely to correct someone\'s grammar!',
+      'Point to the person most likely to always have the latest tech gadget!',
+      
+      // Between player comparison (Embarrassing & Funny)
+      'Between Current player and another player, who\'s most likely to get caught dancing in public when they thought no one was watching?',
+      'Between Current player and another player, who\'s most likely to trip up the stairs in front of a crowd?',
+      'Between Current player and another player, who\'s most likely to accidentally send a screenshot of a conversation to the person they were talking about?',
+      'Between Current player and another player, who\'s most likely to get stuck in a public bathroom?',
+      'Between Current player and another player, who\'s most likely to use a fake accent for an entire evening?',
+      
+      // Time to vote format (Embarrassing & Funny)
+      'Time to vote! Who\'s most likely to call a teacher "mom" or "dad"?',
+      'Time to vote! Who\'s most likely to lose their ID at a crucial moment?',
+      'Time to vote! Who\'s most likely to accidentally wear two different shoes out?',
+      'Time to vote! Who\'s most likely to laugh so hard they snort in public?',
+      'Time to vote! Who\'s most likely to forget someone\'s name immediately after being introduced?',
+      
+      // Everyone point format (Embarrassing & Funny)
+      'Everyone point to who\'s most likely to accidentally like their ex\'s new partner\'s photo from 2 years ago!',
+      'Everyone point to who\'s most likely to get food stuck in their teeth for hours without noticing!',
+      'Everyone point to who\'s most likely to walk into a glass door thinking it\'s open!',
+      'Everyone point to who\'s most likely to text the wrong person something embarrassing!',
+      'Everyone point to who\'s most likely to accidentally flash someone!',
+      
+      // Between player comparison (Friend Group)
+      'Between Current player and another player, who\'s most likely to remember everyone\'s birthday?',
+      'Between Current player and another player, who\'s most likely to disappear when it\'s their turn to pay?',
+      'Between Current player and another player, who\'s most likely to cancel plans last minute?',
+      'Between Current player and another player, who\'s most likely to show up unannounced at your house?',
+      'Between Current player and another player, who\'s most likely to be the group therapist?',
+      
+      // Direct question format (Friend Group)
+      'Who\'s most likely to start drama in the group chat?',
+      'Who\'s most likely to expose the group secrets when drunk?',
+      'Who\'s most likely to be the mom/dad of the friend group?',
+      'Who\'s most likely to be completely oblivious to group drama?',
+      'Who\'s most likely to plan an elaborate surprise for everyone?',
+      
+      // Point to format (Friend Group)
+      'Point to the person most likely to ditch friends for a date!',
+      'Point to the person most likely to keep in touch with everyone 20 years from now!',
+      'Point to the person most likely to give terrible relationship advice!',
+      'Point to the person most likely to always have the gossip!',
+      'Point to the person most likely to bail you out of jail no questions asked!',
+      
+      // Between player comparisons (Party Life)
+      'Between Current player and another player, who\'s most likely to get FOMO and show up to a party they weren\'t invited to?',
+      'Between Current player and another player, who\'s most likely to embarrass themselves doing karaoke?',
+      'Between Current player and another player, who\'s most likely to get kicked out of a club?',
+      'Between Current player and another player, who\'s most likely to take 100+ photos on a night out?',
+      'Between Current player and another player, who\'s most likely to drunk text their ex?',
+      
+      // Time to vote format (Party Life)
+      'Time to vote! Who\'s most likely to spend their rent money on bottle service?',
+      'Time to vote! Who\'s most likely to insist on an after-party at 3AM?',
+      'Time to vote! Who\'s most likely to still be hungover two days later?',
+      'Time to vote! Who\'s most likely to make friends with the bartender?',
+      'Time to vote! Who\'s most likely to lose all their belongings on a night out?',
+      
+      // Everyone points format (Party Life)
+      'Everyone point to who\'s most likely to end the night crying in the bathroom!',
+      'Everyone point to who\'s most likely to drunk online shop!',
+      'Everyone point to who\'s most likely to be found eating alone at a fast food place after the club!',
+      'Everyone point to who\'s most likely to invite random people to the party!',
+      'Everyone point to who\'s most likely to be the designated driver but secretly drink anyway!',
+      
+      // Direct question format (Dating & Relationships)
+      'Who\'s most likely to stay friends with all their exes?',
+      'Who\'s most likely to get married before age 25?',
+      'Who\'s most likely to have the most awkward first date story?',
+      'Who\'s most likely to get caught on a dating app by someone they know?',
+      'Who\'s most likely to fall in love in a week?',
+      
+      // Between player comparison (Dating & Relationships)
+      'Between Current player and another player, who\'s most likely to get into a situationship and be confused for months?',
+      'Between Current player and another player, who\'s most likely to get matching tattoos with someone they just started dating?',
+      'Between Current player and another player, who\'s most likely to be in an on-again-off-again relationship?',
+      'Between Current player and another player, who\'s most likely to date someone their friends can\'t stand?',
+      'Between Current player and another player, who\'s most likely to have the longest talking stage?',
+      
+      // Point to format (Dating & Relationships)
+      'Point to the person most likely to accidentally call their new partner by their ex\'s name!',
+      'Point to the person most likely to move in together after dating for one month!',
+      'Point to the person most likely to have a secret crush on a friend!',
+      'Point to the person most likely to be completely clueless when someone is flirting with them!',
+      'Point to the person most likely to slide into DMs and actually succeed!',
+      
+      // Direct question format (Gen Z Culture)
+      'Who\'s most likely to make a dance routine to every trending song?',
+      'Who\'s most likely to say "it\'s giving..." in every other sentence?',
+      'Who\'s most likely to actually keep up with BeReal every day?',
+      'Who\'s most likely to use a phrase wrong and get called out by Gen Alpha?',
+      'Who\'s most likely to get roasted by Gen Alpha for being "cheugy"?',
+      
+      // Time to vote format (Gen Z Culture)
+      'Time to vote! Who\'s most likely to have the most aesthetically pleasing Instagram feed?',
+      'Time to vote! Who\'s most likely to make their entire personality about their star sign?',
+      'Time to vote! Who\'s most likely to have a specific aesthetic (cottagecore, dark academia, etc.)?',
+      'Time to vote! Who\'s most likely to call everything "mid"?',
+      'Time to vote! Who\'s most likely to be chronically online?',
+      
+      // Everyone points format (Gen Z Culture)
+      'Everyone point to who\'s most likely to gatekeep their favorite music artist!',
+      'Everyone point to who\'s most likely to be genuinely upset about their Spotify Wrapped!',
+      'Everyone point to who\'s most likely to cancel plans because they\'re "protecting their energy"!',
+      'Everyone point to who\'s most likely to use therapy terms incorrectly!',
+      'Everyone point to who\'s most likely to add "no because literally" before every statement!',
+      
+      // Between player comparison (Random Fun)
+      'Between Current player and another player, who\'s most likely to win a hot dog eating contest?',
+      'Between Current player and another player, who\'s most likely to accidentally adopt five pets?',
+      'Between Current player and another player, who\'s most likely to get lost using GPS?',
+      'Between Current player and another player, who\'s most likely to become a meme within the friend group?',
+      'Between Current player and another player, who\'s most likely to accidentally join a cult?',
+      
+      // Direct question format (Random Fun)
+      'Who\'s most likely to get starstruck meeting a D-list celebrity?',
+      'Who\'s most likely to ask "are you mad at me?" when someone doesn\'t respond right away?',
+      'Who\'s most likely to laugh at their own jokes?',
+      'Who\'s most likely to get involved in multi-level marketing?',
+      'Who\'s most likely to have a secret talent no one knows about?',
+      
+      // Point to format (Social Media & Tech)
+      'Point to the person most likely to forget they posted a story and get surprised by their own content!',
+      'Point to the person most likely to accidentally FaceTime someone in the middle of the night!',
+      'Point to the person most likely to lose their phone and find it in the fridge!',
+      'Point to the person most likely to have thousands of unread emails!',
+      'Point to the person most likely to have the most random TikTok FYP!',
+      
+      // Time to vote format (Social Media & Tech)
+      'Time to vote! Who\'s most likely to post cryptic messages hoping someone specific will see?',
+      'Time to vote! Who\'s most likely to use technology slang incorrectly around Gen Alpha?',
+      'Time to vote! Who\'s most likely to become addicted to a random mobile game?',
+      'Time to vote! Who\'s most likely to avoid blue ticks to leave someone on read intentionally?',
+      'Time to vote! Who\'s most likely to have the strangest search history?',
     ],
   ),
   GameMode(
