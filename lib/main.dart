@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'screens/landing_page.dart';
-import 'package:image_watermark/image_watermark.dart';
 import 'utils/logo_painter.dart';
 
 void main() async {

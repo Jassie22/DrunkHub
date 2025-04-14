@@ -685,8 +685,8 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
                           const SizedBox(height: 8),
           TextButton.icon(
             onPressed: () {
-              // Go back to game selection instead of home
-              Navigator.pop(context);
+              // Go back to the start (Landing Page) instead of just the previous screen
+              Navigator.of(context).popUntil((route) => route.isFirst);
             },
             icon: const Icon(Icons.arrow_back, size: 16, color: Colors.white),
             label: const Text(
