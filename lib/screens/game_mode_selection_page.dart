@@ -48,229 +48,213 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        // Enhanced AlertDialog for Premium
         return AlertDialog(
-          title: Row(
-            children: [
-              const Icon(Icons.star, color: Colors.amber, size: 24),
-              const SizedBox(width: 10),
-              const Expanded(
-                child: Text('DrunkHub Premium',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                    fontSize: 18,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          titlePadding: const EdgeInsets.all(0),
+          contentPadding: const EdgeInsets.fromLTRB(20, 15, 20, 20),
+          title: Container(
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF7B1FA2), Color(0xFF1A237E)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20.0),
+                topRight: Radius.circular(20.0),
+              ),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.workspace_premium_rounded, color: Colors.amberAccent, size: 28),
+                SizedBox(width: 12),
+                Text('DrunkHub Premium',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20, // Increased size
+                    color: Colors.white,
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           content: SingleChildScrollView(
             child: Column(
-            mainAxisSize: MainAxisSize.min,
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  padding: const EdgeInsets.all(15),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                        'Premium Features:',
-                style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildPremiumFeature('9 Premium Game Bundles'),
-                      _buildPremiumFeature('7 Epic Finale Experiences'),
-                      _buildPremiumFeature('No Ads or Restrictions'),
-                      _buildPremiumFeature('Regular New Content'),
-                    ],
+                const Text(
+                  'Unlock the Full Experience!',
+                  style: TextStyle(
+                    fontSize: 16, 
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87
                   ),
                 ),
                 const SizedBox(height: 15),
-                // Weekly subscription
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1A237E),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                // Enhanced Feature List
+                _buildPremiumFeature(Icons.local_bar_rounded, 'Access ALL 15+ Game Modes'),
+                _buildPremiumFeature(Icons.celebration_rounded, 'Unlock 7+ Epic Finale Screens'),
+                _buildPremiumFeature(Icons.block_rounded, 'Ad-Free Experience'),
+                _buildPremiumFeature(Icons.autorenew_rounded, 'Regular Content Updates'),
+                const SizedBox(height: 20),
+                
+                // --- Weekly Subscription Button ---
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1A237E),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    onPressed: () async {
-                      Navigator.of(context).pop();
-                      // Show loading indicator
-                      _showLoadingDialog();
-                      try {
-                        await _purchaseService.purchaseWeekly();
-                        if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                      } catch (e) {
-                        if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                        _showErrorDialog('Payment Required', 
+                    elevation: 3,
+                  ),
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    _showLoadingDialog();
+                    try {
+                      await _purchaseService.purchaseWeekly();
+                      if (mounted) Navigator.of(context).pop();
+                    } catch (e) {
+                      if (mounted) Navigator.of(context).pop();
+                      _showErrorDialog('Payment Required',
                           'This is a demo app. In a real app, this would connect to the payment system.');
-                      }
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0), // Padding inside button
+                    child: Column( // Use Column for stacking text
                       children: [
-                        const Text(
-                          'Weekly Subscription',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            const Text(
+                              'Weekly Subscription',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             Text(
                               '${_purchaseService.currencySymbol}${_purchaseService.weeklyPrice}',
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Text(
-                                '3-DAY FREE',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
                               ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                // Lifetime access
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF7B1FA2),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  // Show loading indicator
-                  _showLoadingDialog();
-                  try {
-                    await _purchaseService.purchaseLifetime();
-                    if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                  } catch (e) {
-                    if (mounted) Navigator.of(context).pop(); // Dismiss loading
-                    _showErrorDialog('Payment Required', 
-                      'This is a demo app. In a real app, this would connect to the payment system.');
-                  }
-                },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Lifetime Access',
-                  style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: Colors.green.shade600, // Darker green
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text(
+                            'Includes 3-Day Free Trial', // Explicit free trial text
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                        Text(
-                          '${_purchaseService.currencySymbol}${_purchaseService.lifetimePrice}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                // Redemption code
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      side: const BorderSide(color: Color(0xFF1A237E)),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                      _showRedemptionCodeDialog();
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.card_giftcard, size: 18, color: Color(0xFF1A237E)),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'Redeem Access Code',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A237E),
-                  ),
-                ),
-                      ],
-                    ),
-                  ),
+                  )
                 ),
                 const SizedBox(height: 12),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Maybe Later'),
+
+                // --- Lifetime Access Button ---
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF7B1FA2),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15), // Adjusted padding
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 3,
+                  ),
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    _showLoadingDialog();
+                    try {
+                      await _purchaseService.purchaseLifetime();
+                      if (mounted) Navigator.of(context).pop();
+                    } catch (e) {
+                      if (mounted) Navigator.of(context).pop();
+                      _showErrorDialog('Payment Required',
+                          'This is a demo app. In a real app, this would connect to the payment system.');
+                    }
+                  },
+                  child: Padding(
+                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                     child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                           const Row( // Icon + Text
+                             children: [
+                               Icon(Icons.all_inclusive_rounded, size: 18),
+                               SizedBox(width: 8),
+                               Text('Lifetime Access', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                             ],
+                           ),
+                          Text(
+                            '${_purchaseService.currencySymbol}${_purchaseService.lifetimePrice}',
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                  )
+                ),
+                const SizedBox(height: 15),
+
+                // --- Redeem Code Button ---
+                TextButton.icon(
+                  icon: const Icon(Icons.card_giftcard_rounded, size: 18),
+                  label: const Text('Redeem Access Code'),
+                  style: TextButton.styleFrom(foregroundColor: Colors.black54),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close premium dialog first
+                    _showRedemptionCodeDialog(); // Then open redeem dialog
+                  },
                 ),
               ],
             ),
           ),
-          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Maybe Later',
+                style: TextStyle(color: Colors.grey), // Make it less prominent
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
-  // Helper widget for premium features
-  Widget _buildPremiumFeature(String feature) {
+  // Updated helper widget for premium features
+  Widget _buildPremiumFeature(IconData icon, String feature) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         children: [
-          const Icon(Icons.check_circle_outline, color: Color(0xFF1A237E), size: 16),
-          const SizedBox(width: 6),
-          Text(
-            feature,
-            style: const TextStyle(
-              color: Colors.black87,
-              fontSize: 14,
+          Icon(icon, color: const Color(0xFF1A237E), size: 20),
+          const SizedBox(width: 10),
+          Expanded( // Allow text to wrap
+            child: Text(
+              feature,
+              style: const TextStyle(
+                color: Colors.black87,
+                fontSize: 14.5,
+              ),
             ),
           ),
         ],

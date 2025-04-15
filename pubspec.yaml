@@ -32,14 +32,14 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  in_app_purchase: ^3.1.11  # Add in-app purchase dependency
+  in_app_purchase: ^3.1.13
   shared_preferences: ^2.2.2
   confetti: ^0.7.0
   image_picker: ^1.0.7
   share_plus: ^7.2.1
   path_provider: ^2.1.2
-  flutter_svg: ^2.0.9  # Add this line for SVG support
-  audioplayers: ^5.2.1  # Add audioplayers for sound effects
+  flutter_svg: ^2.0.9
+  audioplayers: ^5.2.1
 
 dev_dependencies:
   flutter_test:

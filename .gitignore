@@ -45,3 +45,8 @@ app.*.map.json
 
 # Local configuration file (sdk path, etc)
 local.properties
+
+# Keystore files
+*.jks
+*.keystore
+key.properties
