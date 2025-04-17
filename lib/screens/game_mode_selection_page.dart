@@ -796,27 +796,6 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
           ),
         ),
       ),
-      // Add a floating action button for quick premium toggle
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          // Toggle premium status
-          final newStatus = !isPremiumUser;
-          await _purchaseService.setPremiumStatus(newStatus);
-          setState(() {
-            isPremiumUser = newStatus;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Premium access ${newStatus ? "FORCED ON" : "FORCED OFF"}'),
-              backgroundColor: newStatus ? Colors.green : Colors.red,
-              duration: const Duration(seconds: 1),
-            ),
-          );
-        },
-        backgroundColor: isPremiumUser ? Colors.red : Colors.green,
-        child: Icon(isPremiumUser ? Icons.lock_open : Icons.vpn_key),
-        tooltip: isPremiumUser ? 'Disable Premium' : 'Enable Premium',
-      ),
     );
   }
 
