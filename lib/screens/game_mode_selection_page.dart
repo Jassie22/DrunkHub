@@ -73,165 +73,152 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                 Text('DrunkHub Premium',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 20, // Increased size
+                    fontSize: 20,
                     color: Colors.white,
                   ),
                 ),
               ],
             ),
           ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Unlock the Full Experience!',
-                  style: TextStyle(
-                    fontSize: 16, 
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87
-                  ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Unlock 14+ premium drinking games and challenges!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
                 ),
-                const SizedBox(height: 15),
-                // Enhanced Feature List
-                _buildPremiumFeature(Icons.local_bar_rounded, 'Access ALL 15+ Game Modes'),
-                _buildPremiumFeature(Icons.celebration_rounded, 'Unlock 7+ Epic Finale Screens'),
-                _buildPremiumFeature(Icons.block_rounded, 'Ad-Free Experience'),
-                _buildPremiumFeature(Icons.autorenew_rounded, 'Regular Content Updates'),
-                const SizedBox(height: 20),
-                
-                // --- Weekly Subscription Button ---
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1A237E),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 3,
+              ),
+              const SizedBox(height: 20),
+              _buildPremiumFeature(Icons.games_rounded, '14+ Premium Game Modes'),
+              _buildPremiumFeature(Icons.local_drink_rounded, 'Exclusive Drinking Challenges'),
+              _buildPremiumFeature(Icons.celebration_rounded, 'Special Occasion Games'),
+              _buildPremiumFeature(Icons.auto_awesome_rounded, 'Regular Content Updates'),
+              const SizedBox(height: 20),
+              // Weekly Subscription Button
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1A237E),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  onPressed: () async {
-                    Navigator.of(context).pop();
-                    _showLoadingDialog();
-                    try {
-                      await _purchaseService.purchaseWeekly();
-                      if (mounted) Navigator.of(context).pop();
-                    } catch (e) {
-                      if (mounted) Navigator.of(context).pop();
-                      _showErrorDialog('Payment Required',
-                          'This is a demo app. In a real app, this would connect to the payment system.');
-                    }
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0), // Padding inside button
-                    child: Column( // Use Column for stacking text
+                  elevation: 3,
+                ),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  _showLoadingDialog();
+                  try {
+                    await _purchaseService.purchaseWeekly();
+                    if (mounted) Navigator.of(context).pop();
+                  } catch (e) {
+                    if (mounted) Navigator.of(context).pop();
+                    _showErrorDialog('Payment Required',
+                        'This is a demo app. In a real app, this would connect to the payment system.');
+                  }
+                },
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Weekly Subscription',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              '${_purchaseService.currencySymbol}${_purchaseService.weeklyPrice}',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: Colors.green.shade600, // Darker green
-                            borderRadius: BorderRadius.circular(6),
+                        const Text(
+                          'Weekly Subscription',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
-                          child: const Text(
-                            'Includes 3-Day Free Trial', // Explicit free trial text
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                        ),
+                        Text(
+                          '${_purchaseService.formattedWeeklyPrice}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
                     ),
-                  )
-                ),
-                const SizedBox(height: 12),
-
-                // --- Lifetime Access Button ---
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7B1FA2),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 15), // Adjusted padding
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 3,
-                  ),
-                  onPressed: () async {
-                    Navigator.of(context).pop();
-                    _showLoadingDialog();
-                    try {
-                      await _purchaseService.purchaseLifetime();
-                      if (mounted) Navigator.of(context).pop();
-                    } catch (e) {
-                      if (mounted) Navigator.of(context).pop();
-                      _showErrorDialog('Payment Required',
-                          'This is a demo app. In a real app, this would connect to the payment system.');
-                    }
-                  },
-                  child: Padding(
-                     padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                     child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                           const Row( // Icon + Text
-                             children: [
-                               Icon(Icons.all_inclusive_rounded, size: 18),
-                               SizedBox(width: 8),
-                               Text('Lifetime Access', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                             ],
-                           ),
-                          Text(
-                            '${_purchaseService.currencySymbol}${_purchaseService.lifetimePrice}',
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                        ],
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade600,
+                        borderRadius: BorderRadius.circular(6),
                       ),
-                  )
+                      child: const Text(
+                        'Includes 3-Day Free Trial',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 15),
-
-                // --- Redeem Code Button ---
-                TextButton.icon(
-                  icon: const Icon(Icons.card_giftcard_rounded, size: 18),
-                  label: const Text('Redeem Access Code'),
-                  style: TextButton.styleFrom(foregroundColor: Colors.black54),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close premium dialog first
-                    _showRedemptionCodeDialog(); // Then open redeem dialog
-                  },
+              ),
+              const SizedBox(height: 12),
+              // Lifetime Access Button
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF7B1FA2),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 3,
                 ),
-              ],
-            ),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  _showLoadingDialog();
+                  try {
+                    await _purchaseService.purchaseLifetime();
+                    if (mounted) Navigator.of(context).pop();
+                  } catch (e) {
+                    if (mounted) Navigator.of(context).pop();
+                    _showErrorDialog('Payment Required',
+                        'This is a demo app. In a real app, this would connect to the payment system.');
+                  }
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.all_inclusive_rounded, size: 18),
+                        SizedBox(width: 8),
+                        Text('Lifetime Access', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    Text(
+                      '${_purchaseService.formattedLifetimePrice}',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 15),
+              // Redeem Code Button
+              TextButton.icon(
+                icon: const Icon(Icons.card_giftcard_rounded, size: 18),
+                label: const Text('Redeem Access Code'),
+                style: TextButton.styleFrom(foregroundColor: Colors.black54),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _showRedemptionCodeDialog();
+                },
+              ),
+            ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Maybe Later',
-                style: TextStyle(color: Colors.grey), // Make it less prominent
+                style: TextStyle(color: Colors.grey),
               ),
             ),
           ],
@@ -448,29 +435,29 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         decoration: BoxDecoration(
           gradient: isSelected 
-            ? LinearGradient(
+            ? const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  const Color(0xFF1A237E).withOpacity(0.5),
-                  const Color(0xFF7B1FA2).withOpacity(0.5),
+                  Color(0xFF1A237E),  // Deeper blue
+                  Color(0xFF7B1FA2),  // Richer purple
                 ],
               )
             : null,
           color: isSelected ? null : Colors.white,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: isSelected ? const Color(0xFF1A237E) : Colors.grey.shade300,
+            color: isSelected ? Colors.white : Colors.grey.shade300,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
             BoxShadow(
               color: isSelected 
-                ? const Color(0xFF1A237E).withOpacity(0.2)
+                ? const Color(0xFF1A237E).withOpacity(0.5)  // More prominent shadow
                 : Colors.black.withAlpha(13),
-              blurRadius: 10,
-              spreadRadius: isSelected ? 2 : 0,
-              offset: const Offset(0, 2),
+              blurRadius: isSelected ? 15 : 10,  // Larger blur for selected
+              spreadRadius: isSelected ? 3 : 0,  // More spread for selected
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -481,21 +468,21 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(10),  // Larger padding
                     decoration: BoxDecoration(
                       color: isSelected ? Colors.white : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),  // Larger radius
                       boxShadow: isSelected ? [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 4,
-                          spreadRadius: 0,
+                          color: Colors.black.withOpacity(0.2),  // More visible shadow
+                          blurRadius: 6,
+                          spreadRadius: 1,
                         ),
                       ] : null,
                     ),
                     child: Text(
-                    mode.icon,
-                    style: const TextStyle(fontSize: 24),
+                      mode.icon,
+                      style: TextStyle(fontSize: isSelected ? 28 : 24),  // Larger for selected
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -508,7 +495,7 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                             Text(
                               mode.name,
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: isSelected ? 20 : 18,  // Larger for selected
                                 fontWeight: FontWeight.bold,
                                 color: isSelected ? Colors.white : Colors.black87,
                               ),
@@ -517,18 +504,19 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                               const SizedBox(width: 8),
                               Icon(
                                 Icons.star,
-                                size: 18,
+                                size: isSelected ? 22 : 18,  // Larger for selected
                                 color: isLocked ? Colors.grey : Colors.amber,
                               ),
                             ],
                           ],
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),  // More space
                         Text(
                           mode.description,
                           style: TextStyle(
-                            fontSize: 14,
-                            color: isSelected ? Colors.white.withOpacity(0.8) : Colors.grey[600],
+                            fontSize: isSelected ? 15 : 14,  // Larger for selected
+                            color: isSelected ? Colors.white : Colors.grey[600],
+                            fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,  // Bolder for selected
                           ),
                         ),
                       ],
@@ -536,22 +524,22 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                   ),
                   if (isSelected)
                     Container(
-                      padding: const EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(6),  // Larger
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.white,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 4,
-                            spreadRadius: 0,
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 6,
+                            spreadRadius: 1,
                           ),
                         ],
                       ),
                       child: const Icon(
-                      Icons.check_circle,
-                      color: Color(0xFF1A237E),
-                      size: 24,
+                        Icons.check_circle,
+                        color: Color(0xFF7B1FA2),  // Use purple for better visibility
+                        size: 28,  // Larger
                       ),
                     ),
                 ],
@@ -563,15 +551,15 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                   borderRadius: BorderRadius.circular(15),
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                child: Container(
-                  decoration: BoxDecoration(
+                    child: Container(
+                      decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.4),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
@@ -579,10 +567,10 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
-                          Icons.lock,
-                          color: Colors.white,
-                          size: 32,
-                        ),
+                                Icons.lock,
+                                color: Colors.white,
+                                size: 32,
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Container(
@@ -592,25 +580,52 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: const Text(
-                          'Premium',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                                'Premium',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
                                   fontSize: 14,
-                            shadows: [
-                              Shadow(
-                                blurRadius: 4,
+                                  shadows: [
+                                    Shadow(
+                                      blurRadius: 4,
                                       color: Colors.black45,
                                       offset: Offset(1, 1),
-                              ),
-                            ],
+                                    ),
+                                  ],
                                 ),
-                          ),
-                        ),
-                      ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
+                  ),
+                ),
+              ),
+            // Selection indicator overlay
+            if (isSelected)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 4,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  transform: Matrix4.translationValues(10, -10, 0),
+                  child: const Icon(
+                    Icons.check,
+                    color: Color(0xFF7B1FA2),
+                    size: 24,
                   ),
                 ),
               ),

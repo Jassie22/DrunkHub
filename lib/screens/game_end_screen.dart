@@ -646,57 +646,73 @@ class _GameEndScreenState extends State<GameEndScreen> with TickerProviderStateM
   // Build buttons - replace Home with Back
   Widget _buildButtons() {
     return FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: Column(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
+      opacity: _fadeAnimation,
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                                colors: [
-                                  Colors.white,
-                                  Colors.white,
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
-                                foregroundColor: const Color(0xFF1A237E),
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                elevation: 0,
-                                shadowColor: Colors.transparent,
-                              ),
-                              onPressed: widget.onPlayAgain,
-              child: Text(
-                _getPlayAgainText(),
-                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white,
+                  const Color(0xFFF5F5F5),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: const Color(0xFF1A237E),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                elevation: 0,
+                shadowColor: Colors.transparent,
+              ),
+              onPressed: widget.onPlayAgain,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.replay, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    _getPlayAgainText(),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           TextButton.icon(
             onPressed: () {
-              // Go back to the start (Landing Page) instead of just the previous screen
-              Navigator.of(context).popUntil((route) => route.isFirst);
+              // Use the provided callback instead of forcing navigation to first route
+              widget.onNewGame();
             },
             icon: const Icon(Icons.arrow_back, size: 16, color: Colors.white),
             label: const Text(
               'Back to Selection',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -467,13 +467,16 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         _quickDrinkTimer = null;
       }
       
-      // Simple direct navigation - immediately push the end screen
+      // Navigate to end screen
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => GameEndScreen(
             players: widget.players,
             onPlayAgain: () {
-              // Completely rebuild the game screen with a fresh state
+              // Pop end screen
+              Navigator.of(context).pop();
+              
+              // Replace current game screen with a new one with the same settings
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
                   builder: (context) => GameScreen(
@@ -485,51 +488,27 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
               );
             },
             onNewGame: () {
-              // Pop this end screen first, then rebuild the game screen with new state
-              Navigator.of(context).pop();
-              // Rebuild the game with new players, clearing all indexes
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => GameScreen(
-                    players: widget.players,
-                    selectedModes: widget.selectedModes,
-                    quickDrinkMode: widget.quickDrinkMode,
-                  ),
-                ),
-              );
+              // Go back to game selection
+              Navigator.of(context).pop(); // Pop end screen
+              Navigator.of(context).pop(); // Pop game screen
+              // Don't pop the game selection screen - this keeps the user on the game selection page
+              // Navigation stack after this: Home -> Game Selection (current)
             },
             onHome: () {
-              // Home navigation now handled directly in GameEndScreen
-              Navigator.of(context).pop();
+              // Go back to game selection (not home)
+              Navigator.of(context).pop(); // Pop end screen
+              Navigator.of(context).pop(); // Pop game screen
+              // Don't pop the game selection screen - this keeps the user on the game selection page
+              // Navigation stack after this: Home -> Game Selection (current)
             },
           ),
         ),
-      ).then((_) {
-        // Reset animation flags when we return (if we ever do)
-        if (mounted) {
-          setState(() {
-            _isAnimating = false;
-            _isAnimatingLeft = false;
-          });
-        }
-      }).catchError((e) {
-        debugPrint("Navigation error: $e");
-        _fallbackNavigation();
-      });
+      );
     } catch (e) {
-      debugPrint("Error showing end game screen: $e");
-      _fallbackNavigation();
-    }
-  }
-  
-  void _fallbackNavigation() {
-    // Simple fallback navigation
-      if (mounted) {
-      try {
-        Navigator.pop(context);
-      } catch (e2) {
-        debugPrint("Error with fallback navigation: $e2");
-      }
+      debugPrint('Error in end game: $e');
+    } finally {
+      _isAnimating = false;
+      _isAnimatingLeft = false;
     }
   }
 
@@ -633,10 +612,18 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                       children: [
                               // Animated icon for attention
                               Container(
-                                padding: const EdgeInsets.all(15),
+                                padding: const EdgeInsets.all(18),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 2),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Color(0xFF7B1FA2).withOpacity(0.8),
+                                      Color(0xFF1A237E).withOpacity(0.9),
+                                    ],
+                                  ),
+                                  border: Border.all(color: Colors.white.withOpacity(0.8), width: 2),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.3),
@@ -646,30 +633,32 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                   ],
                                 ),
                                 child: const Icon(
-                                  Icons.local_bar_rounded,
+                                  Icons.sports_bar_rounded,
                                   color: Colors.white,
                                   size: 60,
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 24),
                               ShaderMask(
                                 shaderCallback: (bounds) => LinearGradient(
-                                  colors: [Colors.white, Colors.white.withOpacity(0.8)],
+                                  colors: [Colors.white, Colors.white.withOpacity(0.85)],
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                 ).createShader(bounds),
                                 child: const Text(
-                                  'SUDDEN DRINK!',
+                                  'DRINK ROULETTE!',
                                   style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 50, 
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 2,
+                                    fontSize: 44, 
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: -0.5,
+                                    height: 1.1,
+                                    fontFamily: 'Roboto',
                                     shadows: [
                                       Shadow(
-                                        blurRadius: 10,
-                                        color: Colors.black54,
-                                        offset: Offset(2, 2),
+                                        blurRadius: 8,
+                                        color: Colors.black45,
+                                        offset: Offset(1, 1),
                                       ),
                                     ],
                                   ),
@@ -679,29 +668,34 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                               Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  gradient: RadialGradient(
-                                    colors: [Colors.white, Colors.white.withOpacity(0.9)],
-                                    radius: 0.8,
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Colors.white,
+                                      Color(0xFFF5F5F5),
+                                    ],
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.5),
+                                      color: Colors.black.withOpacity(0.3),
                                       blurRadius: 15,
                                       spreadRadius: 2,
                                     ),
                                   ],
                                 ),
-                                padding: const EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(22),
                                 child: Text(
                                   '$_quickDrinkCountdown',
                                   style: TextStyle(
-                                    color: Colors.red.shade900,
-                                    fontSize: 100,
-                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFF7B1FA2),
+                                    fontSize: 96,
+                                    fontWeight: FontWeight.w700,
+                                    height: 1.1,
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 24),
                               // Instructions for drink
                               Container(
                                 margin: const EdgeInsets.symmetric(horizontal: 32),
@@ -712,27 +706,28 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                   border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
                                 ),
                                 child: const Text(
-                                  'Take 3 sips or 1 shot if you\'re feeling brave!',
+                                  'Take a drink or pay the price!',
                                   textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                                    fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0.2,
                                     shadows: [Shadow(
-                                      color: Colors.black54,
+                                      color: Colors.black38,
                                       blurRadius: 3,
                                       offset: Offset(1, 1),
                                     )],
                                   ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
                               // Skip button
                               TextButton(
                                 onPressed: _skipQuickDrink,
                                 style: TextButton.styleFrom(
                                   backgroundColor: Colors.white.withOpacity(0.2),
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30),
                                   ),
@@ -740,12 +735,13 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                                 child: const Text(
                                   'SKIP',
                                   style: TextStyle(
-                            color: Colors.white,
-                                    fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 1,
                                   ),
-                          ),
-                        ),
+                                ),
+                              ),
                       ],
                     ),
                   ),
@@ -832,21 +828,35 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.symmetric(horizontal: 24),
                     decoration: BoxDecoration(
-                      color: Colors.red.withAlpha(26),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red.withAlpha(77)),
+                      color: Color(0xFF7B1FA2).withAlpha(26),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Color(0xFF7B1FA2).withAlpha(77)),
                     ),
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.warning_amber_rounded, color: Colors.red[700], size: 20),
-                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Color(0xFF7B1FA2).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Icon(
+                            Icons.sports_bar_rounded, 
+                            color: Color(0xFF7B1FA2), 
+                            size: 18
+                          ),
+                        ),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Random prompts will trigger Quick Drink Mode! Be ready for surprise drinks!',
+                            'Drink Roulette is active! Random drinks will appear during gameplay.',
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.red[700],
+                              color: Color(0xFF7B1FA2),
                               fontWeight: FontWeight.w500,
+                              letterSpacing: 0.1,
                             ),
                           ),
                         ),
