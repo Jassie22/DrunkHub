@@ -522,26 +522,6 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                       ],
                     ),
                   ),
-                  if (isSelected)
-                    Container(
-                      padding: const EdgeInsets.all(6),  // Larger
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 6,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.check_circle,
-                        color: Color(0xFF7B1FA2),  // Use purple for better visibility
-                        size: 28,  // Larger
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -602,7 +582,7 @@ class _GameModeSelectionPageState extends State<GameModeSelectionPage> {
                   ),
                 ),
               ),
-            // Selection indicator overlay
+            // Keep only this selection indicator overlay in the top right
             if (isSelected)
               Positioned(
                 top: 0,
