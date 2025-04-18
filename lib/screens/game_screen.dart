@@ -29,6 +29,7 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
   late List<String> _shuffledPlayers;
   int _currentPromptIndex = -1;
   bool _showTutorial = true;
+  static const int maxPrompts = 5;
   String? _currentTargetPlayer;
   bool _isInitialized = false;
   
@@ -113,28 +114,6 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     });
   }
 
-  // Add a method to calculate the number of cards based on player count
-  int _calculateCardCount(int playerCount) {
-    // Base count for a standard game length
-    int baseCount = 35; // Standard game (similar to Picolo)
-    
-    // Scale based on player count - more players need more cards
-    // to ensure everyone gets involved multiple times
-    double playerFactor = 1.0;
-    if (playerCount > 0) {
-      playerFactor = 1.0 + (playerCount * 0.15); // 15% more cards per player
-    }
-    
-    // Calculate final count
-    int cardCount = (baseCount * playerFactor).round();
-    
-    // Ensure we have at least 25 cards and cap at 70 for very large groups
-    cardCount = cardCount.clamp(25, 70);
-    
-    debugPrint('Calculated $cardCount cards for $playerCount players');
-    return cardCount;
-  }
-
   void _initializeGame() {
     try {
       // Generate a set of prompts from selected game modes
@@ -178,15 +157,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
       
       _prompts.shuffle();
       
-      // Calculate dynamic card count based on player count (Picolo style)
-      int cardCount = _calculateCardCount(widget.players.length);
-      
-      // Limit prompts to calculated card count
-      if (_prompts.length > cardCount) {
-        _prompts = _prompts.sublist(0, cardCount);
-      } else if (_prompts.length < cardCount) {
-        debugPrint('Warning: Only ${_prompts.length} prompts available from selected modes (wanted $cardCount)');
-        // We'll use what we have
+      if (_prompts.length > maxPrompts) {
+        _prompts = _prompts.sublist(0, maxPrompts);
       }
       
       _shuffledPlayers = List.from(widget.players);
@@ -210,9 +182,8 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
         
         // Make sure we have a valid range
         if (startIndex <= endIndex) {
-          // Calculate more drink prompts for longer games
-          int drinkCount = max(2, (_prompts.length * 0.1).round()); // ~10% of cards should be drink prompts
-          drinkCount = min(drinkCount, 8); // Cap at 8 drink prompts
+          // Determine how many drink prompts to show based on total prompts
+          int drinkCount = min(2, (endIndex - startIndex + 1));
           
           // Create a list of available indices (within our valid range)
           List<int> availableIndices = List.generate(endIndex - startIndex + 1, (i) => i + startIndex);
@@ -456,11 +427,11 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
     if (_showTutorial || _isAnimating || _isAnimatingLeft) return;
     
     // If swiped far enough to the right, go to next prompt
-    if (_dragUpdate.dx > 100) {
+    if (_dragUpdate.dx > 150) {
       _animateCardSwipe(isLeft: false);
     } 
     // If swiped far enough to the left, also go to next prompt
-    else if (_dragUpdate.dx < -100) {
+    else if (_dragUpdate.dx < -150) {
       _animateCardSwipe(isLeft: true);
     } 
     // Reset position if not swiped far enough
@@ -964,13 +935,17 @@ class _GameScreenState extends State<GameScreen> with SingleTickerProviderStateM
             offset = _slideAnimation.value;
           } else {
             // Handle manual dragging
-            offset = Offset(_dragUpdate.dx / 200, 0);
+            // Reduce the scaling factor to make dragging feel less sensitive
+            // Changing from dividing by 200 to dividing by 300
+            offset = Offset(_dragUpdate.dx / 300, 0);
           }
           
           return Transform.translate(
-            offset: Offset(offset.dx * 200, 0),
+            // Adjust the scale factor to match the new sensitivity
+            offset: Offset(offset.dx * 300, 0),
             child: Transform.rotate(
-              angle: offset.dx * 0.2, // Slight rotation while sliding
+              // Reduce rotation angle for a more subtle effect
+              angle: offset.dx * 0.15, // Changed from 0.2 to 0.15
               child: child,
             ),
           );
